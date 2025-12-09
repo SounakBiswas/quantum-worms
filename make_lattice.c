@@ -34,6 +34,18 @@ void make_lattice(void)
     triangle[i][sublat[site1]]=site1;
     triangle[i][sublat[site2]]=site2;
 
+    if(orientation==0){
+       dnbr[i][0]=2*nbr[site][0]+1;
+       dnbr[i][2]=2*site+1;
+       dnbr[i][2]=2*nbr[site][5]+1;
+    }
+    else{
+      dnbr[i][0]=2*site;
+      dnbr[i][1]=2*nbr[site][3];
+      dnbr[i][2]=2*nbr[site][1];
+
+    }
+
   }
 
 }
