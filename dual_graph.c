@@ -4,11 +4,11 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
+void add_dual_link(int sdv0, int sdv1,int *dlctr);
 int get_sdl_from_sdv(int sdv, int sdvnbr);
 int get_sl_at_sdl(int sdl);
 int get_sdl_at_sl(int sl);
 int get_sl_from_sv(int sv,int svnbr);
-void add_dual_link(int sdv0, int sdv1,int *dlctr);
 //graph data structures
 int *sv_at_v;
 int *v_at_sv;
@@ -111,6 +111,7 @@ void create_graph(){
             if(op>ndiagops){
                 sigma[sv]*=-1;
             }
+
 
             v_at_sv[sv]=vctr;
             fsp[vctr] = sigma[sv];
