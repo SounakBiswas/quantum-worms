@@ -4,11 +4,7 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
-void add_dual_link(int sdv0, int sdv1,int *dlctr);
-int get_sdl_from_sdv(int sdv, int sdvnbr);
-int get_sl_at_sdl(int sdl);
-int get_sdl_at_sl(int sl);
-int get_sl_from_sv(int sv,int svnbr);
+#include"worms.h"
 //graph data structures
 int *sv_at_v;
 int *v_at_sv;
@@ -20,29 +16,33 @@ int *l_at_dl;
 int *dl_at_l;
 int *p_at_sp;
 int *l2v[2];
-int *dl2dv[2];
+int *dv_at_dl[2];
 int *dv2v[3];
 int *dv_set;
 int *dv_nbrctr;
 int **dv_nbr; //nbr table for dual vertices
-int **dv2dl; //site to link for dual vertices //int **dv2dl;
+int **dl_at_dv; //site to link for dual vertices //int **dl_at_dv;
 int *fsp;
 int *if_hyperedge;
 int *dimer;
+int *dv_typ; //wt type
+int vctr;
+int lctr;
+int dlctr;
+int dvctr;
 void create_graph(){
     // dual graphs and links have prefix d
     // spatial and spatial-dual are s and sd
     int site;
     int vctr=0;
-    int lctr=0;
-    int dlctr=0;
-    int dvctr=0;
+    lctr=0;
+    dlctr=0;
+    dvctr=0;
     int pctr=0;
     int op;
     int s1,s2,s3;
     int dsite;
     int sdv;
-    int *dv_typ; //wt type
     int v0,v1;
     //add direct graph
     for (site=0; site<nsites; site++){
@@ -61,10 +61,7 @@ void create_graph(){
             l_at_sl[sl] = lctr;
             v0=v_at_sv[sv];
             v1=v_at_sv[svnbr];
-            l2v[0][lctr] = v0;
-            l2v[1][lctr] = v1;
             dimer[lctr]= (fsp[v0]==fsp[v1]) ? 1 : 0;
-            
             if_hyperedge[lctr]=0;
             lctr++;
         }
@@ -179,10 +176,10 @@ void add_dual_link( int sdv0, int sdv1,int *dlctr){
     if(if_hyperedge[l]==-1){
         int dv0=dv_at_sdv[sdv0];
         int dv1=dv_at_sdv[sdv1];
-        dl2dv[0][*dlctr] = dv0;
-        dl2dv[1][*dlctr] = dv1;
-        dv2dl[dv0][dv_nbrctr[dv0]]=(*dlctr);
-        dv2dl[dv1][dv_nbrctr[dv1]]=(*dlctr);
+        dv_at_dl[0][*dlctr] = dv0;
+        dv_at_dl[1][*dlctr] = dv1;
+        dl_at_dv[dv0][dv_nbrctr[dv0]]=(*dlctr);
+        dl_at_dv[dv1][dv_nbrctr[dv1]]=(*dlctr);
         dv_nbr[dv0][dv_nbrctr[dv0]]=dv1;
         dv_nbr[dv1][dv_nbrctr[dv1]]=dv0;
         dv_nbrctr[dv0]++;
