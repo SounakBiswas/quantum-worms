@@ -28,3 +28,6 @@ extern int vctr;
 extern int lctr;
 extern int dlctr;
 extern int dvctr;
+
+extern int *wx_mark;
+extern int *wy_mark;

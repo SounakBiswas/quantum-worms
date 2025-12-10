@@ -30,6 +30,8 @@ int vctr;
 int lctr;
 int dlctr;
 int dvctr;
+int *wx_mark;
+int *wy_mark;
 void create_graph(){
     // dual graphs and links have prefix d
     // spatial and spatial-dual are s and sd
@@ -57,8 +59,11 @@ void create_graph(){
         for(int i=0; i<3; i++){
             int svnbr = nbr[site][i];
             int vnbr = v_at_sv[svnbr];
+             
             int sl = get_sl_from_sv(sv,svnbr);
             l_at_sl[sl] = lctr;
+            wx_mark[lctr]=wx_smark[sl];
+            wy_mark[lctr]=wy_smark[sl];
             v0=v_at_sv[sv];
             v1=v_at_sv[svnbr];
             dimer[lctr]= (fsp[v0]==fsp[v1]) ? 1 : 0;

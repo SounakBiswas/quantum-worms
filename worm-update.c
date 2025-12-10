@@ -15,21 +15,21 @@ int get_partner(int v1,int link){
     return dv_at_dl[1][link];
 
 }
-int get_xl(int v, int nl){
-  int xl,dl;
+int get_xdl(int v, int nl){
+  int xdl,dl;
   // 1 dimers
   int dn= dimer[l_at_dl[nl]];
-  xl=nl;
+  xdl=nl;
   if(dv_typ[v]==1){
     if(dn==1){
-      xl=dl_at_dv[v][(int)(genrand_real2()*(dv_nbrctr[v]-1))];
-      if (xl==nl)
-        xl=dl_at_dv[v][dv_nbrctr[v]-1];
+      xdl=dl_at_dv[v][(int)(genrand_real2()*(dv_nbrctr[v]-1))];
+      if (xdl==nl)
+        xdl=dl_at_dv[v][dv_nbrctr[v]-1];
     }
     else if (dn==0){
       for( int i=0; i<dv_nbrctr[v]; i++){
         if (dl=dl_at_dv[v][i], dimer[l_at_dl[dl]]) {
-          xl=dl;
+          xdl=dl;
           break;
         }
       }
@@ -37,44 +37,53 @@ int get_xl(int v, int nl){
   }
   // 3 or one dimers allowed
   else if(dv_typ[v]==0){
-      xl=dl_at_dv[v][(int)(genrand_real2()*(dv_nbrctr[v]-1))];
+      xdl=dl_at_dv[v][(int)(genrand_real2()*(dv_nbrctr[v]-1))];
   }
-  return xl;
+  return xdl;
 
 }
 
-void myopic_worm(){
-  int xl,nl;
+void worm_update(){
+  int xdl,ndl;
   int start=(int)(genrand_real2()*dvctr);
-  nl=-1;
+  ndl=-1;
   int n,x;
   int dl;
   int occ;
   int ln,lx;
   int dn,dx,v;
-  nl=-1;
+  ndl=-1;
+  //counters to check winding number parities
+  int wx_ctr=0;
+  int wy_ctr=0;
   if(dv_typ[start]==1){
     for( int i=0; i<dv_nbrctr[start]; i++){
       if (dl=dl_at_dv[start][i], dimer[l_at_dl[dl]]) {
-        nl=dl;
+        ndl=dl;
         break;
       }
     }
   }
   else if(dv_typ[start]==0){
-    nl=dl_at_dv[start][(int)(genrand_real2()*dv_nbrctr[start])];
+    ndl=dl_at_dv[start][(int)(genrand_real2()*dv_nbrctr[start])];
   }
 
-  v=get_partner(start,nl);
+  v=get_partner(start,ndl);
+  ln=l_at_dl[ndl];
+  wx_ctr+=wx_mark[ln];
+  wy_ctr+=wy_mark[ln];
   while(v!=start){
-     xl = get_xl(v, nl);
-     nl=xl;
-     v=get_partner(v,xl);
-     ln=l_at_dl[nl];
-     lx=l_at_dl[xl];
+     xdl = get_xdl(v, ndl);
+     ndl=xdl;
+     v=get_partner(v,xdl);
+     ln=l_at_dl[ndl];
+     lx=l_at_dl[xdl];
      dimer[ln]*=-1;
      dimer[lx]*=-1;
      //**check winding
+     //**how to check winding ?
+     wx_ctr+=wx_mark[lx];
+     wy_ctr+=wy_mark[lx];
   }
 
 }
