@@ -1,6 +1,6 @@
 Attempts to construct quantum worms.
 
-# What is the myopic-equivalent here.
+### What is the myopic-equivalent here.
 
 We have two kinds of vertices, typ-0 has 3 and 1 dimers with equal weight. typ-1 has only 1-dimer. And then we have another kind of hyperedge vertices. which has 0 or 1 dimer touching it, call it typ-2.  In the following D(v1,v2)=0/1 denotes that the edge (v1,v2) has or does not have a dimer.
 
@@ -13,3 +13,15 @@ We have two kinds of vertices, typ-0 has 3 and 1 dimers with equal weight. typ-1
 
 There is no need for myopic. All steps respect det-bal
 
+
+
+### What to do about the hyper edges?
+
+Don't touch the hyper-edges
+
+
+### What are the main issues still to be addressed
+
+1. How to reconstruct spins from dimer configs
+2. Stitch together dual graph accross the imaginary-time boundary
+3. What is the best way to backtrack loops that violate winding number parity
