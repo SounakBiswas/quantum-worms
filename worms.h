@@ -12,7 +12,7 @@ extern int *dl_at_sdl;
 extern int *l_at_dl;
 extern int *dl_at_l;
 extern int *p_at_sp;
-extern int *l2v[2];
+extern int *v_at_l[2];
 extern int *dv_at_dl[2];
 extern int *dv2v[3];
 extern int *dv_set;
@@ -22,6 +22,7 @@ extern int **dl_at_dv; //site to link for dual vertices //int **dl_at_dv;
 extern int *fsp;
 extern int *if_hyperedge;
 extern int *dimer;
+extern int *backup_dimer;
 extern int *dv_typ;
 
 extern int vctr;

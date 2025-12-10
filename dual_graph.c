@@ -15,7 +15,7 @@ int *dl_at_sdl;
 int *l_at_dl;
 int *dl_at_l;
 int *p_at_sp;
-int *l2v[2];
+int *v_at_l[2];
 int *dv_at_dl[2];
 int *dv2v[3];
 int *dv_set;
@@ -128,12 +128,12 @@ void create_graph(){
                 v1=v_at_sv[svnbr];
                 l_at_sl[sl] = lctr;
                 if(i<3){
-                    l2v[0][lctr] = v0;
-                    l2v[1][lctr] = v1;
+                    v_at_l[0][lctr] = v0;
+                    v_at_l[1][lctr] = v1;
                 }
                 else {
-                    l2v[0][lctr] = v0;
-                    l2v[1][lctr] = v1;
+                    v_at_l[0][lctr] = v0;
+                    v_at_l[1][lctr] = v1;
                 }
                 dimer[lctr]= (fsp[v0]==fsp[v1]) ? 1 : 0;
                 if_hyperedge[lctr]=0;
