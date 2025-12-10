@@ -5,8 +5,12 @@
 #include"global.h"
 #include"mt19937ar.h"
 #include"worms.h"
+#include<string.h>
 //nl and xl and entry and exit
 int wx,wy;
+int *parent;
+int *ancestor;
+
 int get_vertex_myopic();
 int get_partner(int v1,int link){
   if(dv_at_dl[0][link]==v1)
@@ -14,6 +18,9 @@ int get_partner(int v1,int link){
   else 
     return dv_at_dl[1][link];
 
+}
+void revert(){
+  memcpy(dimer,  backup_dimer, lctr *sizeof(int));
 }
 int get_xdl(int v, int nl){
   int xdl,dl;
@@ -85,5 +92,12 @@ void worm_update(){
      wx_ctr+=wx_mark[lx];
      wy_ctr+=wy_mark[lx];
   }
+  if(wx_ctr%2 || wy_ctr%2){
+    revert();
+    //choices to revert : memcpy dimers, or backtrack loop. what is better?
+  }
 
 }
+
+// the other option is to maintain neighbour tables of direct lattice links. 
+//
