@@ -27,6 +27,7 @@
 //constants
 double jising;
 int nsites,nbonds,lx,ly,initialstate,ntriangles,ntrianglesandsites; 
+int *wx_smark, *wy_smark;
 int nsdnbrs, ndsites,npsites;
 int ndiagops;
 int nplaqspersite;
