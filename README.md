@@ -25,3 +25,18 @@ Don't touch the hyper-edges
 1. How to reconstruct spins from dimer configs
 2. Stitch together dual graph accross the imaginary-time boundary
 3. What is the best way to backtrack loops that violate winding number parity
+
+
+
+### Reconstructing spins from dimers
+
+1. Maintain dynamic arrays which store links for each vertex of direct graph. Then one can populate the fatspins from a DFS like search
+2. Maintain edge lists of direct graph only. Then one must either 
+    1. find a MST, construct a neighbour table for the MST and then populate fatspins
+    2. or construct a neighbour table of direct graph.
+    3. seems like maintainig a direct graph can incure ignificant costs in endless alloc/realloc. Not clear what is the average degree connectivity 
+      of the dual graph.
+
+### General bookkeeping thoughts
+
+1. Dual graph has at most 6 $n_{X}$ edges. An $O(V)$ number of links and edges vanish due to stitching, we can forget about them
