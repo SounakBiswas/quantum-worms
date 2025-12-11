@@ -40,3 +40,5 @@ Don't touch the hyper-edges
 ### General bookkeeping thoughts
 
 1. Dual graph has at most 6 $n_{X}$ edges. An $O(V)$ number of links and edges vanish due to stitching, we can forget about them
+2. I am going with maintaining a large list of edges for each vertex. Each edge addition is a realloc. Must change it to a different structure that autoreallocates when a max size is crossed.
+3. Right now each dual-v has three edges and exactly three. some edges are hyper. That is okay, we will skip them in the worm step. Efficiency later, proof-of-principle first.
