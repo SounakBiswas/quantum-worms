@@ -20,6 +20,8 @@ int *dv_at_dl[2];
 int *dv2v[3];
 int *dv_set;
 int *dv_nbrctr;
+int *v_nbrctr;
+int **l_at_v;
 int **dv_nbr; //nbr table for dual vertices
 int **dl_at_dv; //site to link for dual vertices //int **dl_at_dv;
 int *fsp;
@@ -135,6 +137,8 @@ void create_graph(){
                     v_at_l[0][lctr] = v0;
                     v_at_l[1][lctr] = v1;
                 }
+                l_at_v[v0][v_nbrctr[v0]++]=lctr;
+                l_at_v[v1][v_nbrctr[v1]++]=lctr;
                 dimer[lctr]= (fsp[v0]==fsp[v1]) ? 1 : 0;
                 if_hyperedge[lctr]=0;
                 lctr++;
