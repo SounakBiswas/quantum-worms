@@ -22,8 +22,7 @@ int *dv_set;
 int *dv_nbrctr;
 int *v_nbrctr;
 int **l_at_v;
-int **dv_nbr; //nbr table for dual vertices
-int **dl_at_dv; //site to link for dual vertices //int **dl_at_dv;
+int *dl_at_dv[3]; //site to link for dual vertices //int **dl_at_dv;
 int *fsp;
 int *if_hyperedge;
 int *dimer;
@@ -34,6 +33,10 @@ int dlctr;
 int dvctr;
 int *wx_mark;
 int *wy_mark;
+void add_l_to_v(int v,int lctr){
+  v_nbrctr[v]++;
+  l_at_v[v]=realloc(l_at_v[v],sizeof(int)*v_nbrctr[v]);
+}
 void create_graph(){
     // dual graphs and links have prefix d
     // spatial and spatial-dual are s and sd
