@@ -28,7 +28,7 @@
 double jising;
 int nsites,nbonds,lx,ly,initialstate,ntriangles,ntrianglesandsites; 
 int *wx_smark, *wy_smark;
-int nsdnbrs, ndsites,npsites;
+int nsdnbrs, ndsites,npsites, nsdl;
 int ndiagops;
 int nplaqspersite;
 int **sdv_at_sv;

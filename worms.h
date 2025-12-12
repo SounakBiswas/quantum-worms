@@ -4,10 +4,9 @@ int get_sdl_at_sl(int sl);
 int get_sl_from_sv(int sv,int svnbr);
 void add_dual_link( int sdv0, int sdv1);
 extern int *sv_at_v;
-extern int *v_at_sv;
-extern int *dv_at_sdv;
+
+
 extern int *sdv_at_dv;
-extern int *l_at_sl;
 extern int *dl_at_sdl;
 extern int *l_at_dl;
 extern int *dl_at_l;
@@ -35,3 +34,33 @@ extern int dvctr;
 
 extern int *wx_mark;
 extern int *wy_mark;
+
+typedef struct link link;
+typedef struct dlink dlink;
+typedef struct vert vert;
+typedef struct dvert dvert;
+
+struct link{
+  vert *v0, *v1;
+  int wx,wy;
+  dlink *dl;
+  int d;
+  int he;
+};
+struct dlink{
+  dvert *dv0, *dv1;
+  link *l;
+};
+struct vert{
+  int nnbr;
+  link **l;
+  int s;
+};
+struct dvert{
+  int nnbr;
+  dlink **dl;
+  int ct;
+};
+extern vert **v_at_sv;
+extern link **l_at_sl;
+extern dvert **dv_at_sdv;
