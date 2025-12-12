@@ -45,6 +45,8 @@ int get_xdl(int v, int nl){
   // 3 or one dimers allowed
   else if(dv_typ[v]==0){
       xdl=dl_at_dv[v][(int)(genrand_real2()*(dv_nbrctr[v]-1))];
+      if (xdl==nl)
+        xdl=dl_at_dv[v][dv_nbrctr[v]-1];
   }
   return xdl;
 

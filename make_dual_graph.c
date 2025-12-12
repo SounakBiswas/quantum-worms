@@ -6,6 +6,8 @@
 #include"mt19937ar.h"
 #include"worms.h"
 //graph data structures
+int *first_v;
+int *first_dv;
 int *sv_at_v;
 int *v_at_sv;
 int *dv_at_sdv;
@@ -22,7 +24,7 @@ int *dv_set;
 int *dv_nbrctr;
 int *v_nbrctr;
 int **l_at_v;
-int *dl_at_dv[3]; //site to link for dual vertices //int **dl_at_dv;
+int **dl_at_dv; //site to link for dual vertices //int **dl_at_dv;
 int *fsp;
 int *if_hyperedge;
 int *dimer;
@@ -33,9 +35,15 @@ int dlctr;
 int dvctr;
 int *wx_mark;
 int *wy_mark;
+int get_partner(int v1,int link);
+
 void add_l_to_v(int v,int lctr){
-  v_nbrctr[v]++;
-  l_at_v[v]=realloc(l_at_v[v],sizeof(int)*v_nbrctr[v]);
+    v_nbrctr[v]++;
+    l_at_v[v]=realloc(l_at_v[v],sizeof(int)*v_nbrctr[v]);
+}
+void add_dl_to_dv(int dv,int dlctr){
+    dv_nbrctr[dv]++;
+    dl_at_dv[dv]=realloc(dl_at_dv[dv],sizeof(int)*dv_nbrctr[dv]);
 }
 void create_graph(){
     // dual graphs and links have prefix d
@@ -45,7 +53,6 @@ void create_graph(){
     lctr=0;
     dlctr=0;
     dvctr=0;
-    int pctr=0;
     int op;
     int s1,s2,s3;
     int dsite;
@@ -64,7 +71,7 @@ void create_graph(){
         for(int i=0; i<3; i++){
             int svnbr = nbr[site][i];
             int vnbr = v_at_sv[svnbr];
-             
+
             int sl = get_sl_from_sv(sv,svnbr);
             l_at_sl[sl] = lctr;
             wx_mark[lctr]=wx_smark[sl];
@@ -84,18 +91,18 @@ void create_graph(){
         dvctr++;
     }
     for (sdv=0; dsite<ndsites; sdv++){
-        
+
         for (int i=0; i<nplaqspersite; i++){
-          sdv=sdv_at_sv[sv][i];
-          //add dual links for uptriangles
-          if(sdv%2==0){
-              int sdv0=dnbr[sdv][0];
-              add_dual_link(sdv,sdv0,&dlctr);
-              int sdv1=dnbr[sdv][1];
-              add_dual_link(sdv,sdv1,&dlctr);
-              int sdv2=dnbr[sdv][2];
-              add_dual_link(sdv,sdv2,&dlctr);
-          }
+            sdv=sdv_at_sv[sv][i];
+            //add dual links for uptriangles
+            if(sdv%2==0){
+                int sdv0=dnbr[sdv][0];
+                add_dual_link(sdv,sdv0,&dlctr);
+                int sdv1=dnbr[sdv][1];
+                add_dual_link(sdv,sdv1,&dlctr);
+                int sdv2=dnbr[sdv][2];
+                add_dual_link(sdv,sdv2,&dlctr);
+            }
 
         }
     }
@@ -132,6 +139,8 @@ void create_graph(){
                 int sl=get_sl_from_sv(sv,svnbr);
                 v1=v_at_sv[svnbr];
                 l_at_sl[sl] = lctr;
+                wx_mark[lctr]=wx_smark[sl];
+                wy_mark[lctr]=wy_smark[sl];
                 if(i<3){
                     v_at_l[0][lctr] = v0;
                     v_at_l[1][lctr] = v1;
@@ -140,8 +149,8 @@ void create_graph(){
                     v_at_l[0][lctr] = v0;
                     v_at_l[1][lctr] = v1;
                 }
-                l_at_v[v0][v_nbrctr[v0]++]=lctr;
-                l_at_v[v1][v_nbrctr[v1]++]=lctr;
+                add_l_to_v(v0,lctr);
+                add_l_to_v(v1,lctr);
                 dimer[lctr]= (fsp[v0]==fsp[v1]) ? 1 : 0;
                 if_hyperedge[lctr]=0;
                 lctr++;
@@ -149,58 +158,115 @@ void create_graph(){
             //dual graph vertices
             //add 6 vertices
             for (int i=0; i<nplaqspersite; i++){
-              sdv=sdv_at_sv[sv][i];
-              sdv_at_dv[dvctr]=sdv;
-              dvctr++;
-              for(int tsite=0; tsite<3; tsite++){
-                  sv = triangle[sdv][tsite];
-                  dv2v[tsite][dvctr]= v_at_sv[site];
-              }
-              //***add triangles if using, dv2v
-
+                sdv=sdv_at_sv[sv][i];
+                sdv_at_dv[dvctr]=sdv;
+                dvctr++;
             }
             for (int i=0; i<nplaqspersite; i++){
-              sdv=sdv_at_sv[sv][i];
-              //uptriangles
-              if(sdv%2==0){
-                  int sdv0=dnbr[sdv][0];
-                  add_dual_link(sdv,sdv0,&dlctr);
-                  int sdv1=dnbr[sdv][1];
-                  add_dual_link(sdv,sdv1,&dlctr);
-                  int sdv2=dnbr[sdv][2];
-                  add_dual_link(sdv,sdv2,&dlctr);
-              }
-              else{
-                  int sdv2=dnbr[sdv][2];
-                  add_dual_link(sdv2,sdv,&dlctr);
-              }
+                sdv=sdv_at_sv[sv][i];
+                //uptriangles
+                if(sdv%2==0){
+                    int sdv0=dnbr[sdv][0];
+                    add_dual_link(sdv,sdv0,&dlctr);
+                    int sdv1=dnbr[sdv][1];
+                    add_dual_link(sdv,sdv1,&dlctr);
+                    int sdv2=dnbr[sdv][2];
+                    add_dual_link(sdv,sdv2,&dlctr);
+                }
+                else{
+                    int sdv2=dnbr[sdv][2];
+                    add_dual_link(sdv2,sdv,&dlctr);
+                }
 
             }
         }
     }
+    //void stitch
+
 
 }
-void add_dual_link( int sdv0, int sdv1,int *dlctr){
+int edge_notin_nbrs(int dv, int dl){
+    int dv1=get_partner(dv,dl);
+    int dvnbr;
+    int rflag=1;
+    for(int j=0; j<dv_nbrctr[dv]; j++){
+        dvnbr= dv_nbr[j][dv1];
+        if(dvnbr==dv1){
+            rflag=0;
+            break;
+        }
+    }
+    return rflag;
+}
+void stich_in_time(){
+    int sv, sdv, last, first;
+    int dl;
+    for(sv=0; sv<nsites; sv++){
+        last=v_at_sv[sv];
+        first=first_v[sv];
+        if(first!=last){
+            for(int j=0; j<dv_nbrctr[last]; j++){
+                dl = dl_at_dv[j][sv];
+                if (edge_notin_nbrs(first,dl)){
+
+
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+void remove_hyper_edges(){
+    int l,dl,dl2,dv,l2;
+    int maxj;
+    int j,j2;
+    for ( dv=0; dv<dvctr; dv++){
+        j=0;
+        while(j<dv_nbrctr[dv]){
+            dl= dl_at_dv[dv][j];
+            l=l_at_dl[dl];
+            if (if_hyperedge[l]>1){
+                j2=j+1;
+                while(j2<dv_nbrctr[dv]){
+                    dl2= dl_at_dv[dv][j];
+                    l2=l_at_dl[dl2];
+                    if (if_hyperedge[l2]==1){
+                        dl_at_dv[dv][j]=l2;
+                        dl_at_dv[dv][j2]=l;
+                        dv_nbrctr[dv]--;
+                        break;
+                    }
+                    j2++;
+                }
+                j=j2;
+            }
+            j++;
+        }
+    }
+}
+void add_dual_link( int sdv0, int sdv1){
     int sdl = get_sdl_from_sdv(sdv0, sdv1);
     int sl= get_sl_at_sdl(sdl);
     int l=l_at_sl[sl];
     //check if it corresponds to a hyperedge
-    if(if_hyperedge[l]==-1){
+    //if(if_hyperedge[l]==0){
+    if(1){
         int dv0=dv_at_sdv[sdv0];
         int dv1=dv_at_sdv[sdv1];
-        dv_at_dl[0][*dlctr] = dv0;
-        dv_at_dl[1][*dlctr] = dv1;
-        dl_at_dv[dv0][dv_nbrctr[dv0]]=(*dlctr);
-        dl_at_dv[dv1][dv_nbrctr[dv1]]=(*dlctr);
-        dv_nbr[dv0][dv_nbrctr[dv0]]=dv1;
-        dv_nbr[dv1][dv_nbrctr[dv1]]=dv0;
-        dv_nbrctr[dv0]++;
-        dv_nbrctr[dv1]++;
-        l_at_dl[*dlctr]=l;
-        dl_at_l[l]= (*dlctr);
-        (*dlctr)++;
+        dv_at_dl[0][dlctr] = dv0;
+        dv_at_dl[1][dlctr] = dv1;
+        add_dl_to_dv(dv0,dlctr);
+        add_dl_to_dv(dv1,dlctr);
+        l_at_dl[dlctr]=l;
+        dl_at_l[l]= dlctr;
+        dlctr++;
+        if_hyperedge[l]++;
     }
-    if_hyperedge[l]++;
 }
 
 
