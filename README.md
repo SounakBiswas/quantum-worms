@@ -41,4 +41,11 @@ Don't touch the hyper-edges
 
 1. Dual graph has at most 6 $n_{X}$ edges. An $O(V)$ number of links and edges vanish due to stitching, we can forget about them
 2. I am going with maintaining a large list of edges for each vertex. Each edge addition is a realloc. Must change it to a different structure that autoreallocates when a max size is crossed.
-3. Right now each dual-v has three edges and exactly three. some edges are hyper. That is okay, we will skip them in the worm step. Efficiency later, proof-of-principle first.
+4. Right now each dual-v has three edges and exactly three. some edges are hyper. That is okay, we will skip them in the worm step. Efficiency later, proof-of-principle first.
+5. Right now I am maintaining both a list of edges and neibhours for dual graph verts. seems unnecessary
+6. Okay we add all dual-vertex edges (some of them actually hyperedges), and then in the end we remove the ones corresponding to hyperedges.
+
+
+### Sitching togetherdual graphs across space time 
+
+1.  
