@@ -5,84 +5,135 @@
 #include"global.h"
 #include"mt19937ar.h"
 #include"worms.h"
+//stack
+//push stack
+void* top_ptr(vector *s){
+  assert(s->top<s->size);
+  void *elem= (void*)((char*)s->arr + s->top *s->size);
+  s->top++;
+  return elem;
+}
+void* ix_ptr(vector *s, int ix){
+  assert(ix<=s->top);
+  void *elem= (void*)((char*)s->arr + ix *s->size);
+  return elem;
+}
+void alloc_vector(vector *s, int maxs){
+  s->arr=malloc(maxs*s->size);
+}
+void free_stack(vector *s){
+  free(s->arr);
+}
+void init_vector(vector *s, int max, size_t size){
+    s->top=0;
+    s->max=max;
+    s->size=size;
+    s->arr = (void*)malloc(max*size);
+}
+void remove_l_byix_from_v(vert *v, int ix){
+  int i;
+  v->l[ix]=v->l[v->nnbr];
+  v->nnbr--;
+  v->l[v->nnbr]=NULL;
+
+}
+void remove_dl_byix_from_dv(dvert *dv, int ix){
+  //for( i=0; i<dv->nnbr; i++)
+  //  if(dv->dl[i]==dl){
+  //    break;
+  //  }
+  dv->dl[ix]=dv->dl[dv->nnbr];
+  dv->nnbr--;
+  dv->dl[dv->nnbr]=NULL;
+
+}
+
+void add_l_to_v(vert *v, link* l){
+  v->l=(link**)realloc(v->l,(v->nnbr+1)*sizeof(link *));
+  v->l[v->nnbr]= l;
+  v->nnbr++;
+}
+void add_dl_to_dv(dvert *dv, dlink* dl){
+  dv->dl=(dlink**)realloc(dv->dl,(dv->nnbr+1)*sizeof(dlink *));
+  dv->dl[dv->nnbr]= dl;
+  dv->nnbr++;
+
+}
+void remove_v(vert *v0){
+  free(v0->l);
+  v0->nnbr=0;
+}
+void remove_dv(dvert *dv0){
+  free(dv0->dl);
+  dv0->nnbr=0;
+}
+
+void init_spatial_markers(){
+  v_at_sv=(vert**)malloc(nsites*sizeof(vert*));
+  firstv=(vert**)malloc(nsites*sizeof(vert*));
+  firstdv=(vert**)malloc(ndsites*sizeof(vert*));
+  dv_at_sdv=(dvert**)malloc(ndsites*sizeof(dvert*));
+  l_at_sl = (link**) malloc(nbonds*sizeof(link*));
+
+}
+void free_spatial_markers(){
+  free(v_at_sv);
+  free(dv_at_sdv);
+  free(l_at_sl  );
+}
 
 void init_dual_graph(){
   int max_ndv=ndsites+6*(n_niop-n_triagop);
   int max_ndl=max_ndv*6;
   int max_nl=max_ndl;
   int max_nv=nsites+(n_niop-n_triagop);
-
-  v_at_sv=(int*)malloc(nsites*sizeof(int));
-  dv_at_sdv=(int*)malloc(ndsites*sizeof(int));
-  l_at_sl = (int*) malloc(nbonds*sizeof(int));
-  dl_at_sdl = (int*) malloc(nsdl*sizeof(int));
-
-  sv_at_v=(int*)malloc(max_nv*sizeof(int));
-  sdv_at_dv=(int*)malloc(max_ndv*sizeof(int));
-  l_at_dl = (int*) malloc(max_ndl*sizeof(int));
-  dl_at_l = (int*) malloc(max_nl*sizeof(int));
-  for (int i =0; i<2; i++){
-    v_at_l[i]=(int*)malloc(max_nl*sizeof(int));
-    dv_at_dl[i]=(int*)malloc(max_ndl*sizeof(int));
-  }
-  for (int i =0; i<3; i++){
-    dl_at_dv[i]=(int*)malloc(max_nv*sizeof(int));
-  }
-  fsp= (int*)malloc(max_nv*sizeof(int));
-  if_hyperedge=(int*)malloc(max_nl*sizeof(int));
-  dimer=(int*)malloc(max_nl*sizeof(int));;
-  wx_mark = (int*)malloc(max_nl*sizeof(int));
-  wy_mark = (int*)malloc(max_nl*sizeof(int));
-
-
-
-  dv_typ=(int*)malloc(max_ndv*sizeof(int));
-
-  l_at_v=(int**)malloc(max_nv*sizeof(int*));
-  v_nbrctr = (int*)malloc(max_nv*sizeof(int));
-
-  for(int i=0; i<max_nv; i ++){
-    v_nbrctr[i]=6;
-    l_at_v[i]=(int*)malloc(6*sizeof(int));
-  }
+  links = (link*)malloc(max_nl*sizeof(link));
+  verts = (vert*)malloc(max_nv*sizeof(link));
+  dverts = (dvert*)malloc(max_ndv*sizeof(link));
+  dlinks = (dlink*)malloc(max_ndl*sizeof(link));
 
 
 }
 
 void free_dual_graph(){
-  int max_nv=nsites+(n_niop-n_triagop);
+    int i;
+    for(i=0; i<vctr; i++){
+        free(verts[i].l);
+    } 
+    for(i=0; i<dvctr; i++){
+        free(dverts[i].dl);
+    } 
+    free(verts);
+    free(dverts);
+    free(dlinks);
+    free(links);
 
-  free(v_at_sv);
-  free(dv_at_sdv);
-  free(l_at_sl );
-  free(dl_at_sdl );
+}
+int get_dlink_ix(dvert *dv0, dlink *dl0){
+  dlink* dl;
+  dvert *dv2;
+  int ix=-1;
+  for (int j=0; j<dv0->nnbr; j++){
+    dl=dv0->dl[j];
+    if(dl==dl0){
+      ix=j;
+      break;
+    }
 
-  free(sv_at_v);
-  free(sdv_at_dv);
-  free(l_at_dl );
-  free(dl_at_l );
-  for (int i =0; i<2; i++){
-    free(v_at_l[i]);
-    free(dv_at_dl[i]);
   }
-  for (int i =0; i<3; i++){
-    free(dl_at_dv[i]);
+  return ix;
+}
+int get_link_ix(vert *v0, link *l0){
+  link* l;
+  vert *v2;
+  int ix=-1;
+  for (int j=0; j<v0->nnbr; j++){
+    l=v0->l[j];
+    if(l==l0){
+      ix=j;
+      break;
+    }
+
   }
-  free(fsp);
-  free(if_hyperedge);
-  free(dimer);
-  free(wx_mark );
-  free(wy_mark );
-
-
-
-  free(dv_typ);
-
-  for(int i=0; i<max_nv; i ++){
-    free(l_at_v[i]);
-  }
-  free(v_nbrctr );
-  free(l_at_v);
-
-
+  return ix;
 }

@@ -1,3 +1,5 @@
+#include<stdlib.h>
+#include<stdio.h>
 int get_sdl_from_sdv(int sdv, int sdvnbr);
 int get_sl_at_sdl(int sdl);
 int get_sdl_at_sl(int sl);
@@ -39,6 +41,13 @@ typedef struct link link;
 typedef struct dlink dlink;
 typedef struct vert vert;
 typedef struct dvert dvert;
+typedef struct vector vector;
+struct vector{
+  void* arr;
+  int top;
+  int max;
+  size_t size;
+};
 
 struct link{
   vert *v0, *v1;
@@ -64,3 +73,13 @@ struct dvert{
 extern vert **v_at_sv;
 extern link **l_at_sl;
 extern dvert **dv_at_sdv;
+extern vert **firstv ;
+extern dvert **firstdv ;
+extern link *links;
+extern dlink *dlinks;
+extern vert *verts;
+extern dvert *dverts;
+extern int lctr;
+extern int dlctr;
+extern int vctr;
+extern int dvctr;
