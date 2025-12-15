@@ -1,6 +1,6 @@
 #include<stdio.h>
 #include"global.h"
-#include"worms.h"
+#include"dual_graphs.h"
 #define  next_nbr(ii,jj,xx,yy)  ((xx+ii+lx)%lx + ((yy+jj+ly)%ly)*lx)
 // 2     1
 // --\  /
