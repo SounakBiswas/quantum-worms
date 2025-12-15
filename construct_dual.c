@@ -25,7 +25,6 @@ void create_graph(){
   int op;
   int s1,s2,s3;
   int sdv0,sdv1,sdv2,sdv3;
-  int dsite;
   int sdv;
   vert* v0,*v1;
   vert *v; link *l; 
@@ -34,6 +33,7 @@ void create_graph(){
   int sv,sl;
   //add direct graph
   for (site=0; site<nsites; site++){
+    //printf("site=%d, top =%d spin=%d, max=%d ,size=%lu \n",site,verts.top,sigma[site],verts.max,verts.size);
     v=(vert*)top_ptr(&verts);
     v->s = sigma[site];
     v_at_sv[site]=v;
@@ -57,21 +57,25 @@ void create_graph(){
   // add dual graph
   for (sdv=0; sdv<ndsites; sdv++){
     dv= (dvert*)top_ptr(&dverts);
-    dv_at_sdv[dsite]=dv;
+    dv_at_sdv[sdv]=dv;
+    printf("sdv=%d ptr=%p \n",sdv,(void*)dv);
     dv->ct=0;
   }
-  for (sdv=0; dsite<ndsites; sdv++){
+  for (sdv=0; sdv<ndsites; sdv++){
 
     for (int i=0; i<nplaqspersite; i++){
       //add dual links for uptriangles
       if(sdv%2==0){
         sdv0=dnbr[sdv][0];
+        printf("sdv0 %d \n",sdv0);
         add_dual_link(sdv,sdv0);
         
         sdv1=dnbr[sdv][1];
+        printf("sdv1 %d \n",sdv1);
         add_dual_link(sdv,sdv1);
 
         sdv2=dnbr[sdv][2];
+        printf("sdv2 %d \n",sdv1);
         add_dual_link(sdv,sdv2);
       }
 
@@ -81,12 +85,13 @@ void create_graph(){
   for (int op_pos=0; op_pos <opstr_l; op_pos++) {
     op = opstr[op_pos];
     //new segment
-    if(op < ntriangles){
+    if(op!=-1 && op < ntriangles){
       int sdv=op;
+      printf("sdv=%d\n",sdv);
       dv = dv_at_sdv[sdv];
       dv->ct=1;
     }
-    if (op >= ntriangles){
+    if (op!=-1 && op >= ntriangles){
       sv0= (op-ntriangles)%nsites;
       if(op>ndiagops){
         sigma[sv0]*=-1;
@@ -125,17 +130,23 @@ void create_graph(){
         sdv=sdv_at_sv[sv][i];
         //uptriangles
         if(sdv%2==0){
+          printf("add uptriangle\n");
           sdv0=dnbr[sdv][0];
+          printf("sdv0 %d \n",sdv0);
           add_dual_link(sdv,sdv0);
 
           sdv1=dnbr[sdv][1];
+          printf("sdv1 %d \n",sdv1);
           add_dual_link(sdv,sdv1);
 
           sdv2=dnbr[sdv][2];
+          printf("sdv2 %d \n",sdv2);
           add_dual_link(sdv,sdv2);
         }
         else{
+          printf("add downtriangle\n");
           sdv2=dnbr[sdv][2];
+          printf("sdv2 %d \n",sdv2);
           add_dual_link(sdv2,sdv);
         }
 
@@ -251,6 +262,7 @@ void add_dual_link( int sdv0, int sdv1){
   dl = (dlink*)top_ptr(&dlinks);
   dv0=dv_at_sdv[sdv0];
   dv1=dv_at_sdv[sdv1];
+  printf("sites %d (%p)  %d (%p)\n",sdv0, (void*)dv0,sdv1,(void*)dv1);
   dl->dv0=dv0;
   dl->dv1=dv1;
   add_dl_to_dv(dv0,dl);
