@@ -4,12 +4,33 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
+#include<assert.h>
 #include"dual_graphs.h"
 //stack
 //push stack
 //returns top pointer and advances
+vert *get_partnerv(vert *v1, link *link){
+    if  (link->v0==v1){
+        return link->v0;
+    }
+    else {
+        assert(link->v1==v1);
+        return link->v0;
+    }
+
+}
+dvert *get_partnerdv(dvert *dv1, dlink *dlink){
+    if  (dlink->dv0==dv1){
+        return dlink->dv0;
+    }
+    else {
+        assert(dlink->dv1==dv1);
+        return dlink->dv0;
+    }
+
+}
 void* top_ptr(vector *s){
-  assert(s->top<s->size);
+   assert(s->top<s->max);;
   void *elem= (void*)((char*)s->arr + s->top *s->size);
   s->top++;
   return elem;
@@ -55,6 +76,7 @@ void add_l_to_v(vert *v, link* l){
   v->nnbr++;
 }
 void add_dl_to_dv(dvert *dv, dlink* dl){
+  printf("dv->nnbr %d\n",dv->nnbr);
   dv->dl=(dlink**)realloc(dv->dl,(dv->nnbr+1)*sizeof(dlink *));
   dv->dl[dv->nnbr]= dl;
   dv->nnbr++;
@@ -81,6 +103,8 @@ void free_spatial_markers(){
   free(v_at_sv);
   free(dv_at_sdv);
   free(l_at_sl  );
+  free(firstv);
+  free(firstdv);
 }
 
 void init_dual_graph(){
@@ -92,6 +116,15 @@ void init_dual_graph(){
   init_vector(&dlinks, max_ndl, sizeof(dlink));
   init_vector(&verts, max_nv, sizeof(vert));
   init_vector(&dverts, max_ndv, sizeof(dvert));
+
+  for(int i=0; i<max_nv; i++){
+      vert *v= (vert*)((char*)(&verts)+i*verts.size);
+      v->nnbr=0;
+  }
+  for(int i=0; i<max_ndv; i++){
+      dvert *dv= (dvert*)((char*)(&dverts)+i*dverts.size);
+      dv->nnbr=0;
+  }
 
 
 }

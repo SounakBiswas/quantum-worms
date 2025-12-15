@@ -6,6 +6,8 @@
 #include"mt19937ar.h"
 #include"dual_graphs.h"
 //graph data structures
+void stich_in_time();
+void remove_hyper_edges();
 vert **firstv ;
 dvert **firstdv ;
 vert **v_at_sv;
@@ -20,10 +22,6 @@ void create_graph(){
   // dual graphs and links have prefix d
   // spatial and spatial-dual are s and sd
   int site;
-  vctr=0;
-  lctr=0;
-  dlctr=0;
-  dvctr=0;
   int op;
   int s1,s2,s3;
   int sdv0,sdv1,sdv2,sdv3;
@@ -44,8 +42,9 @@ void create_graph(){
   for (sv0=0; sv0<nsites; sv0++){
     for(int i=0; i<3; i++){
       l= (link*)top_ptr(&links);
-      sv1 = nbr[site][i];
+      sv1 = nbr[sv0][i];
       sl = get_sl_from_sv(sv0,sv1);
+      //printf("sl=%d, nbonds=%d\n",sl,nbonds);
       l_at_sl[sl] = l;
       l->wx=wx_smark[sl];
       l->wy=wy_smark[sl];
@@ -122,7 +121,7 @@ void create_graph(){
         sdv=sdv_at_sv[sv][i];
         dv_at_sdv[sdv]=dv;
       }
-      for (int i=0; i<nplaqspersite; i++){
+      for (int i=0; i<ndvperv; i++){
         sdv=sdv_at_sv[sv][i];
         //uptriangles
         if(sdv%2==0){
@@ -143,7 +142,10 @@ void create_graph(){
       }
     }
   }
+  printf("pre-stitch \n");
   //void stitch
+  stich_in_time();
+
 
 
 }
@@ -257,4 +259,13 @@ void add_dual_link( int sdv0, int sdv1){
   l->he++;
 }
 
-
+void worm_update(){
+    init_spatial_markers();
+    printf("spatial markers done\n");
+    init_dual_graph();
+    printf("dual allocations done\n");
+    create_graph();
+    printf("graph created\n");
+    free_dual_graph();
+    free_spatial_markers();
+}
