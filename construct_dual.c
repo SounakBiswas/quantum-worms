@@ -4,7 +4,7 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
-#include"utils_dual_graph.h"
+#include"dual_graphs.h"
 //graph data structures
 vert **firstv ;
 dvert **firstdv ;
