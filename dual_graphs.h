@@ -75,10 +75,8 @@ extern link **l_at_sl;
 extern dvert **dv_at_sdv;
 extern vert **firstv ;
 extern dvert **firstdv ;
-extern link *links;
-extern dlink *dlinks;
-extern vert *verts;
-extern dvert *dverts;
+
+extern vector links,verts,dlinks,dverts;
 extern int lctr;
 extern int dlctr;
 extern int vctr;
