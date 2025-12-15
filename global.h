@@ -19,7 +19,8 @@
 #define JISING 1.0000// Ising exchange
 #define INITIALSTATE 0 //initial state 2: staggered, initialstate 1: columnar ; initialstate=0: all sigma random;
 #define INIT_OPSTR_L 30
-
+#define NDSITES 2*NSITES
+#define NDLINKS 3*NSITES
 #define TAU_MAX 1000
 #define N_CLUST_HIST_BINS 100
 ///////variables:
@@ -37,6 +38,7 @@ double root3by2;
 double piby2;
 double pi;
 int sublat[NSITES];
+int sl_at_sdl[NDLINKS];
 int triangle[2*NSITES][3]; //gives a,b,c site numbers of given triangle
 int dnbr[2*NSITES][3]; //gives a,b,c site numbers of given triangle
 //inputoutput
