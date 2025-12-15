@@ -72,7 +72,7 @@ void remove_dv(dvert *dv0){
 void init_spatial_markers(){
   v_at_sv=(vert**)malloc(nsites*sizeof(vert*));
   firstv=(vert**)malloc(nsites*sizeof(vert*));
-  firstdv=(vert**)malloc(ndsites*sizeof(vert*));
+  firstdv=(dvert**)malloc(ndsites*sizeof(dvert*));
   dv_at_sdv=(dvert**)malloc(ndsites*sizeof(dvert*));
   l_at_sl = (link**) malloc(nbonds*sizeof(link*));
 

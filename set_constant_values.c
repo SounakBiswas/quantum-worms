@@ -28,6 +28,10 @@ void set_const_val(void)
   ntrianglesandsites=NTRIANGLESANDSITES;
   ntriangles=NTRIANGLES;
   ndiagops=ntrianglesandsites;
+  //dual lattice
+  ndsites=NDSITES;
+  nsdl=NDLINKS;
+  nsdnbrs=3;
   lx=LX;ly=LY;
   initialstate=INITIALSTATE;
   temp=TEMP;
