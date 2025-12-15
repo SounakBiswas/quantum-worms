@@ -6,6 +6,8 @@
 
 void  bin(  double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double, double );
 
+void auto_corr(double op1,double op2,double op3,double op4,double op5);
+
 
 void measure()
 {
