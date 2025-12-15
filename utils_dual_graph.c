@@ -4,9 +4,10 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
-#include"worms.h"
+#include"dual_graphs.h"
 //stack
 //push stack
+//returns top pointer and advances
 void* top_ptr(vector *s){
   assert(s->top<s->size);
   void *elem= (void*)((char*)s->arr + s->top *s->size);
@@ -21,7 +22,7 @@ void* ix_ptr(vector *s, int ix){
 void alloc_vector(vector *s, int maxs){
   s->arr=malloc(maxs*s->size);
 }
-void free_stack(vector *s){
+void free_vector(vector *s){
   free(s->arr);
 }
 void init_vector(vector *s, int max, size_t size){
@@ -87,26 +88,29 @@ void init_dual_graph(){
   int max_ndl=max_ndv*6;
   int max_nl=max_ndl;
   int max_nv=nsites+(n_niop-n_triagop);
-  links = (link*)malloc(max_nl*sizeof(link));
-  verts = (vert*)malloc(max_nv*sizeof(link));
-  dverts = (dvert*)malloc(max_ndv*sizeof(link));
-  dlinks = (dlink*)malloc(max_ndl*sizeof(link));
+  init_vector(&links, max_nl, sizeof(link));
+  init_vector(&dlinks, max_ndl, sizeof(dlink));
+  init_vector(&verts, max_nv, sizeof(vert));
+  init_vector(&dverts, max_ndv, sizeof(dvert));
 
 
 }
 
 void free_dual_graph(){
     int i;
-    for(i=0; i<vctr; i++){
-        free(verts[i].l);
+    for(i=0; i<verts.top; i++){
+        vert *v = (vert *)ix_ptr(&verts,i);
+        free(v->l);
     } 
-    for(i=0; i<dvctr; i++){
-        free(dverts[i].dl);
+    for(i=0; i<dverts.top; i++){
+        dvert *dv = (dvert *)ix_ptr(&dverts,i);
+        free(dv->dl);
     } 
-    free(verts);
-    free(dverts);
-    free(dlinks);
-    free(links);
+
+    free_vector(&links);
+    free_vector(&dlinks);
+    free_vector(&verts);
+    free_vector(&dverts);
 
 }
 int get_dlink_ix(dvert *dv0, dlink *dl0){
