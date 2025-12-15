@@ -27,7 +27,8 @@ void set_const_val(void)
   nbonds=NBONDS;
   ntrianglesandsites=NTRIANGLESANDSITES;
   ntriangles=NTRIANGLES;
-  ndiagops=ntrianglesandsites;
+  ndvperv=NDVPERV;
+  nplaqspersite=6;
   //dual lattice
   ndsites=NDSITES;
   nsdl=NDLINKS;
