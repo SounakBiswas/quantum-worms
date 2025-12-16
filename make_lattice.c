@@ -108,10 +108,10 @@ void make_lattice(void)
 
     int dlix,upsite;
     int nuptriangles=nsites;
-    for(i=0; i<nuptriangles; i++){
-        sl_at_sdl[3*i]= 3*nbr[upsite][0]+2;
-        sl_at_sdl[3*i+1]= 3*upsite+1;
-        sl_at_sdl[3*i+2]= 3*upsite;
+    for(upsite=0; upsite<nuptriangles; upsite++){
+        sl_at_sdl[3*upsite]= 3*nbr[upsite][0]+2;
+        sl_at_sdl[3*upsite+1]= 3*upsite+1;
+        sl_at_sdl[3*upsite+2]= 3*upsite;
     }
 
 }
