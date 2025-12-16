@@ -30,15 +30,15 @@ void create_graph(){
   vert *v; link *l; 
   dvert *dv; dlink *dl; 
   dvert *dvp;
-  int sv,sl;
-  //add direct graph
-  for (site=0; site<nsites; site++){
-    //printf("site=%d, top =%d spin=%d, max=%d ,size=%lu \n",site,verts.top,sigma[site],verts.max,verts.size);
-    v=(vert*)top_ptr(&verts);
-    v->s = sigma[site];
-    v_at_sv[site]=v;
-  }
+  int sl;
   int sv0,sv1;
+  //add direct graph
+  for (sv0=0; sv0<nsites; sv0++){
+    v=(vert*)top_ptr(&verts);
+    v->s = sigma[sv0];
+    v_at_sv[sv0]=v;
+    firstv[sv0]=v;
+  }
   for (sv0=0; sv0<nsites; sv0++){
     for(int i=0; i<3; i++){
       l= (link*)top_ptr(&links);
@@ -58,28 +58,26 @@ void create_graph(){
   for (sdv=0; sdv<ndsites; sdv++){
     dv= (dvert*)top_ptr(&dverts);
     dv_at_sdv[sdv]=dv;
-    printf("sdv=%d ptr=%p \n",sdv,(void*)dv);
+    firstdv[sdv]=dv;
+    //printf("sdv=%d ptr=%p \n",sdv,(void*)dv);
     dv->ct=0;
   }
   for (sdv=0; sdv<ndsites; sdv++){
-
-    for (int i=0; i<nplaqspersite; i++){
       //add dual links for uptriangles
       if(sdv%2==0){
         sdv0=dnbr[sdv][0];
-        printf("sdv0 %d \n",sdv0);
+        //printf("sdv0 %d \n",sdv0);
         add_dual_link(sdv,sdv0);
         
         sdv1=dnbr[sdv][1];
-        printf("sdv1 %d \n",sdv1);
+        //printf("sdv1 %d \n",sdv1);
         add_dual_link(sdv,sdv1);
 
         sdv2=dnbr[sdv][2];
-        printf("sdv2 %d \n",sdv1);
+        //printf("sdv2 %d \n",sdv1);
         add_dual_link(sdv,sdv2);
       }
 
-    }
   }
 
   for (int op_pos=0; op_pos <opstr_l; op_pos++) {
@@ -87,7 +85,7 @@ void create_graph(){
     //new segment
     if(op!=-1 && op < ntriangles){
       int sdv=op;
-      printf("sdv=%d\n",sdv);
+      //printf("sdv=%d\n",sdv);
       dv = dv_at_sdv[sdv];
       dv->ct=1;
     }
@@ -98,15 +96,16 @@ void create_graph(){
       }
 
       v= (vert*)top_ptr(&verts);
-      v_at_sv[sv]=v;
-      v->s=sigma[sv];
-      v0=v_at_sv[sv];
+      v_at_sv[sv0]=v;
+      v->s=sigma[sv0];
+      v0=v_at_sv[sv0];
       //add links for new vertex (crucial to check for hyperedges
       for(int i=0; i<6; i++){
         l= (link*) top_ptr(&links);
 
-        int sv1 = nbr[sv][i];
+        int sv1 = nbr[sv0][i];
         sl=get_sl_from_sv(sv0,sv1);
+        //printf("sl from sv=%d, sites %d %d\n",sl,sv0,sv1);
         v1=v_at_sv[sv1];
 
         l_at_sl[sl] = l;
@@ -123,39 +122,52 @@ void create_graph(){
       //add 6 vertices
       for (int i=0; i<nplaqspersite; i++){
         dv=  (dvert*) top_ptr(&dverts);
-        sdv=sdv_at_sv[sv][i];
+        sdv=sdv_at_sv[sv0][i];
         dv_at_sdv[sdv]=dv;
+        printf("sdv=%d, ix=%d \n", sdv, dverts.top);
       }
       for (int i=0; i<ndvperv; i++){
-        sdv=sdv_at_sv[sv][i];
+        sdv=sdv_at_sv[sv0][i];
         //uptriangles
         if(sdv%2==0){
-          printf("add uptriangle\n");
+          //printf("add uptriangle\n");
           sdv0=dnbr[sdv][0];
-          printf("sdv0 %d \n",sdv0);
+          //printf("sdv0 %d \n",sdv0);
           add_dual_link(sdv,sdv0);
 
           sdv1=dnbr[sdv][1];
-          printf("sdv1 %d \n",sdv1);
+          ////printf("sdv1 %d \n",sdv1);
           add_dual_link(sdv,sdv1);
 
           sdv2=dnbr[sdv][2];
-          printf("sdv2 %d \n",sdv2);
+          //printf("sdv2 %d \n",sdv2);
           add_dual_link(sdv,sdv2);
         }
         else{
-          printf("add downtriangle\n");
+          //printf("add downtriangle\n");
           sdv2=dnbr[sdv][2];
-          printf("sdv2 %d \n",sdv2);
+          //printf("sdv2 %d \n",sdv2);
           add_dual_link(sdv2,sdv);
         }
 
       }
     }
   }
-  printf("pre-stitch \n");
+  //printf("pre-stitch \n");
   //void stitch
+  printf("before stitch\n");
+  for(int i=0; i<dverts.top; i++){
+      printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
+  }
   stich_in_time();
+  for(int i=0; i<dverts.top; i++){
+      printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
+  }
+  remove_hyper_edges();
+  //printf("after removal\n");
+  //for(int i=0; i<dverts.top; i++){
+  //    printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
+  //}
 
 
 
@@ -171,10 +183,12 @@ void stich_in_time(){
   for(sv=0; sv<nsites; sv++){
     lv= v_at_sv[sv];
     fv= firstv[sv];
+    //printf("sv=%d, nnbr=%d\n",sv,lv->nnbr);
     if(fv!=lv){
       for(int j=0; j<lv->nnbr; j++){
         l = lv->l[j];
         ix=get_link_ix(fv,l);
+        //printf("ix=%d\n",ix);
         if (ix==-1){
           v1= get_partnerv(lv,l);
           l->v0=fv;
@@ -262,7 +276,7 @@ void add_dual_link( int sdv0, int sdv1){
   dl = (dlink*)top_ptr(&dlinks);
   dv0=dv_at_sdv[sdv0];
   dv1=dv_at_sdv[sdv1];
-  printf("sites %d (%p)  %d (%p)\n",sdv0, (void*)dv0,sdv1,(void*)dv1);
+  //printf("sites %d (%p)  %d (%p)\n",sdv0, (void*)dv0,sdv1,(void*)dv1);
   dl->dv0=dv0;
   dl->dv1=dv1;
   add_dl_to_dv(dv0,dl);
@@ -273,11 +287,11 @@ void add_dual_link( int sdv0, int sdv1){
 
 void worm_update(){
     init_spatial_markers();
-    printf("spatial markers done\n");
+    //printf("spatial markers done\n");
     init_dual_graph();
-    printf("dual allocations done\n");
+    //printf("dual allocations done\n");
     create_graph();
-    printf("graph created\n");
+    //printf("graph created\n");
     free_dual_graph();
     free_spatial_markers();
 }
