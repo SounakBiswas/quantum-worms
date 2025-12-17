@@ -9,9 +9,27 @@
 //stack
 //push stack
 //returns top pointer and advances
+void print_dual(){
+    int j,dvix;
+    dvert *dv;
+    dlink *dl;
+    link *l;
+    for ( dvix=0; dvix<dverts.top; dvix++){
+        dv= ix_ptr(&dverts, dvix);
+        j=0;
+        assert(dv->nnbr<4);
+        if(dv->nnbr>2)
+        for(j=0; j<dv->nnbr; j++){
+            dl=dv->dl[j];
+            l=dl->l;
+            printf("dvix=%d, j=%d,dl=%d (%d %d) l_at_dl=%d (%d %d), %d \n",dvix,j,dl->id,dl->dv0->id,dl->dv1->id,dl->l->id,(l->v0)->id,(l->v1)->id, l->he);
+        }
+    }
+
+}
 vert *get_partnerv(vert *v1, link *link){
     if  (link->v0==v1){
-        return link->v0;
+        return link->v1;
     }
     else {
         assert(link->v1==v1);
@@ -21,7 +39,7 @@ vert *get_partnerv(vert *v1, link *link){
 }
 dvert *get_partnerdv(dvert *dv1, dlink *dlink){
     if  (dlink->dv0==dv1){
-        return dlink->dv0;
+        return dlink->dv1;
     }
     else {
         assert(dlink->dv1==dv1);
@@ -30,14 +48,14 @@ dvert *get_partnerdv(dvert *dv1, dlink *dlink){
 
 }
 void* top_ptr(vector *s){
-   assert(s->top<s->max);;
-  void *elem= (void*)((char*)s->arr + s->top *s->size);
+   assert((s->top) < (s->max));
+  void *elem= (void*)((char*)(s->arr) + (s->top) *(s->size) );
   s->top++;
   return elem;
 }
 void* ix_ptr(vector *s, int ix){
   assert(ix<=s->top);
-  void *elem= (void*)((char*)s->arr + ix *s->size);
+  void *elem= (void*)((char*)(s->arr) + ix *(s->size));
   return elem;
 }
 void alloc_vector(vector *s, int maxs){
@@ -54,9 +72,9 @@ void init_vector(vector *s, int max, size_t size){
 }
 void remove_l_byix_from_v(vert *v, int ix){
   int i;
-  v->l[ix]=v->l[v->nnbr];
+  v->l[ix]=v->l[v->nnbr-1];
+  v->l[v->nnbr-1]=NULL;
   v->nnbr--;
-  v->l[v->nnbr]=NULL;
 
 }
 void remove_dl_byix_from_dv(dvert *dv, int ix){
@@ -64,9 +82,9 @@ void remove_dl_byix_from_dv(dvert *dv, int ix){
   //  if(dv->dl[i]==dl){
   //    break;
   //  }
-  dv->dl[ix]=dv->dl[dv->nnbr];
+  dv->dl[ix]=dv->dl[dv->nnbr-1];
+  dv->dl[dv->nnbr-1]=NULL;
   dv->nnbr--;
-  dv->dl[dv->nnbr]=NULL;
 
 }
 
@@ -76,18 +94,18 @@ void add_l_to_v(vert *v, link* l){
   v->nnbr++;
 }
 void add_dl_to_dv(dvert *dv, dlink* dl){
-  printf("dv->nnbr %d\n",dv->nnbr);
+  //printf("dv->nnbr %d\n",dv->nnbr);
   dv->dl=(dlink**)realloc(dv->dl,(dv->nnbr+1)*sizeof(dlink *));
   dv->dl[dv->nnbr]= dl;
   dv->nnbr++;
 
 }
 void remove_v(vert *v0){
-  free(v0->l);
+  //free(v0->l);
   v0->nnbr=0;
 }
 void remove_dv(dvert *dv0){
-  free(dv0->dl);
+  //free(dv0->dl);
   dv0->nnbr=0;
 }
 
@@ -118,12 +136,14 @@ void init_dual_graph(){
   init_vector(&dverts, max_ndv, sizeof(dvert));
 
   for(int i=0; i<max_nv; i++){
-      vert *v= (vert*)((char*)(&verts)+i*verts.size);
+      vert *v= (vert*)((char*)(verts.arr)+i*verts.size);
       v->nnbr=0;
+      v->l=NULL;
   }
   for(int i=0; i<max_ndv; i++){
-      dvert *dv= (dvert*)((char*)(&dverts)+i*dverts.size);
+      dvert *dv= (dvert*)((char*)(dverts.arr)+i*dverts.size);
       dv->nnbr=0;
+      dv->dl=NULL;
   }
 
 
@@ -146,13 +166,15 @@ void free_dual_graph(){
     free_vector(&dverts);
 
 }
-int get_dlink_ix(dvert *dv0, dlink *dl0){
+int get_dlink_ix(dvert *dv0, dvert *dv1){
   dlink* dl;
   dvert *dv2;
   int ix=-1;
   for (int j=0; j<dv0->nnbr; j++){
     dl=dv0->dl[j];
-    if(dl==dl0){
+    int c1= (dl->dv0)==dv0 && (dl->dv1)==dv1;
+    int c2= (dl->dv1)==dv0 && (dl->dv0)==dv1;
+    if(c1 || c2 ){
       ix=j;
       break;
     }
@@ -160,17 +182,78 @@ int get_dlink_ix(dvert *dv0, dlink *dl0){
   }
   return ix;
 }
-int get_link_ix(vert *v0, link *l0){
-  link* l;
-  vert *v2;
+int get_dlink_ix2(dvert *dv0, dlink *dl0){
+  dlink* dl;
+  dvert *dv2;
   int ix=-1;
-  for (int j=0; j<v0->nnbr; j++){
-    l=v0->l[j];
-    if(l==l0){
+  for (int j=0; j<dv0->nnbr; j++){
+    dl=dv0->dl[j];
+    int c1= (dl->dv0)==(dl0->dv0) && (dl->dv1)==(dl0->dv1);
+    int c2= (dl->dv1)==(dl0->dv0) && (dl->dv0)==(dl0->dv1);
+    if(c1 || c2 ){
       ix=j;
       break;
     }
 
   }
   return ix;
+}
+int get_link_ix2(vert *v0, link *l0){
+  link* l;
+  vert *v2;
+  int ix=-1;
+  for (int j=0; j<v0->nnbr; j++){
+    l=v0->l[j];
+    int c1= (l->v0)==(l0->v0) && (l->v1)==(l0->v1);
+    int c2= (l->v1)==(l0->v0) && (l->v0)==(l0->v1);
+    if(c1 || c2 ){
+      ix=j;
+      break;
+    }
+
+  }
+  return ix;
+}
+int get_link_ix(vert *v0, vert *v1){
+  link* l;
+  vert *v2;
+  int ix=-1;
+  for (int j=0; j<v0->nnbr; j++){
+    l=v0->l[j];
+    int c1= (l->v0)==(v0) && (l->v1)==(v1);
+    int c2= (l->v1)==(v0) && (l->v0)==(v1);
+    if(c1 || c2 ){
+      ix=j;
+      break;
+    }
+
+  }
+  return ix;
+}
+void fprint_dual(){
+    int j,dvix;
+    dvert *dv;
+    dlink *dl;
+    link *l;
+    FILE *fp = fopen("graph_e.dat","w");
+    for ( dvix=0; dvix<dverts.top; dvix++){
+        dv= ix_ptr(&dverts, dvix);
+        j=0;
+        if(dv->nnbr>1)
+        for(j=0; j<dv->nnbr; j++){
+            dl=dv->dl[j];
+            l=dl->l;
+            fprintf(fp,"%d %d %d %d\n",dv->id,get_partnerdv(dv,dl)->id,dl->l->d,dl->l->he);
+        }
+    }
+    fclose(fp);
+
+    fp = fopen("graph_n.dat","w");
+    for ( dvix=0; dvix<dverts.top; dvix++){
+        dv= ix_ptr(&dverts, dvix);
+        j=0;
+        fprintf(fp,"%d %d \n",dv->id,dv->ct);
+    }
+    fclose(fp);
+
 }
