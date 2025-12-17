@@ -19,212 +19,210 @@ dvert *get_partnerdv(dvert *dv1,dlink *dlink);
 
 vector links, dlinks, verts, dverts;
 void create_graph(){
-  // dual graphs and links have prefix d
-  // spatial and spatial-dual are s and sd
-  int site;
-  int op;
-  int s1,s2,s3;
-  int sdv0,sdv1,sdv2,sdv3;
-  int sdv;
-  vert* v0,*v1;
-  vert *v; link *l; 
-  dvert *dv; dlink *dl; 
-  dvert *dvp;
-  int sl;
-  int sv0,sv1;
-  //add direct graph
-  for (sv0=0; sv0<nsites; sv0++){
-    v=(vert*)top_ptr(&verts);
-    v->s = sigma[sv0];
-    v_at_sv[sv0]=v;
-    firstv[sv0]=v;
-  }
-  for (sv0=0; sv0<nsites; sv0++){
-    for(int i=0; i<3; i++){
-      l= (link*)top_ptr(&links);
-      sv1 = nbr[sv0][i];
-      sl = get_sl_from_sv(sv0,sv1);
-      //printf("sl=%d, nbonds=%d\n",sl,nbonds);
-      l_at_sl[sl] = l;
-      l->wx=wx_smark[sl];
-      l->wy=wy_smark[sl];
-      l->v0=v_at_sv[sv0];
-      l->v1=v_at_sv[sv1];
-      l->d=(v0->s == v1->s)?1:0;
-      l->he=0;
+    // dual graphs and links have prefix d
+    // spatial and spatial-dual are s and sd
+    int site;
+    int op;
+    int s1,s2,s3;
+    int sdv0,sdv1,sdv2,sdv3;
+    int sdv;
+    vert* v0,*v1;
+    vert *v; link *l; 
+    dvert *dv; dlink *dl; 
+    dvert *dvp;
+    int sl;
+    int sv0,sv1;
+    //add direct graph
+    for (sv0=0; sv0<nsites; sv0++){
+        v=(vert*)top_ptr(&verts);
+        v->id=(verts.top-1);
+        v->s = sigma[sv0];
+        v_at_sv[sv0]=v;
+        firstv[sv0]=v;
     }
-  }
-  // add dual graph
-  for (sdv=0; sdv<ndsites; sdv++){
-    dv= (dvert*)top_ptr(&dverts);
-    dv_at_sdv[sdv]=dv;
-    firstdv[sdv]=dv;
-    //printf("sdv=%d ptr=%p \n",sdv,(void*)dv);
-    dv->ct=0;
-  }
-  for (sdv=0; sdv<ndsites; sdv++){
-      //add dual links for uptriangles
-      if(sdv%2==0){
-        sdv0=dnbr[sdv][0];
-        //printf("sdv0 %d \n",sdv0);
-        add_dual_link(sdv,sdv0);
-        
-        sdv1=dnbr[sdv][1];
-        //printf("sdv1 %d \n",sdv1);
-        add_dual_link(sdv,sdv1);
-
-        sdv2=dnbr[sdv][2];
-        //printf("sdv2 %d \n",sdv1);
-        add_dual_link(sdv,sdv2);
-      }
-
-  }
-
-  for (int op_pos=0; op_pos <opstr_l; op_pos++) {
-    op = opstr[op_pos];
-    //new segment
-    if(op!=-1 && op < ntriangles){
-      int sdv=op;
-      //printf("sdv=%d\n",sdv);
-      dv = dv_at_sdv[sdv];
-      dv->ct=1;
+    for (sv0=0; sv0<nsites; sv0++){
+        for(int i=0; i<3; i++){
+            l= (link*)top_ptr(&links);
+            l->id=links.top-1;
+            sv1 = nbr[sv0][i];
+            sl = get_sl_from_sv(sv0,sv1);
+            //DEBUG_PRINT("sl=%d, nbonds=%d\n",sl,nbonds);
+            l_at_sl[sl] = l;
+            l->wx=wx_smark[sl];
+            l->wy=wy_smark[sl];
+            l->v0=v_at_sv[sv0];
+            l->v1=v_at_sv[sv1];
+            l->d=(l->v0->s == l->v1->s)?1:0;
+            l->he=0;
+        }
     }
-    if (op!=-1 && op >= ntriangles){
-      sv0= (op-ntriangles)%nsites;
-      if(op>ndiagops){
-        sigma[sv0]*=-1;
-      }
-
-      v= (vert*)top_ptr(&verts);
-      v_at_sv[sv0]=v;
-      v->s=sigma[sv0];
-      v0=v_at_sv[sv0];
-      //add links for new vertex (crucial to check for hyperedges
-      for(int i=0; i<6; i++){
-        l= (link*) top_ptr(&links);
-
-        int sv1 = nbr[sv0][i];
-        sl=get_sl_from_sv(sv0,sv1);
-        //printf("sl from sv=%d, sites %d %d\n",sl,sv0,sv1);
-        v1=v_at_sv[sv1];
-
-        l_at_sl[sl] = l;
-        l->wx=wx_smark[sl];
-        l->wy=wy_smark[sl];
-        l->v0=v0;
-        l->v1=v1;
-        l->d= (v0->s == v1->s) ? 1 : 0;
-        l->he=0;
-        add_l_to_v(v0,l);
-        add_l_to_v(v1,l);
-      }
-      //dual graph vertices
-      //add 6 vertices
-      for (int i=0; i<nplaqspersite; i++){
-        dv=  (dvert*) top_ptr(&dverts);
-        sdv=sdv_at_sv[sv0][i];
+    // add dual graph
+    for (sdv=0; sdv<ndsites; sdv++){
+        dv= (dvert*)top_ptr(&dverts);
+        dv->id=dverts.top-1;
         dv_at_sdv[sdv]=dv;
-        printf("sdv=%d, ix=%d \n", sdv, dverts.top);
-      }
-      for (int i=0; i<ndvperv; i++){
-        sdv=sdv_at_sv[sv0][i];
-        //uptriangles
-        if(sdv%2==0){
-          //printf("add uptriangle\n");
-          sdv0=dnbr[sdv][0];
-          //printf("sdv0 %d \n",sdv0);
-          add_dual_link(sdv,sdv0);
-
-          sdv1=dnbr[sdv][1];
-          ////printf("sdv1 %d \n",sdv1);
-          add_dual_link(sdv,sdv1);
-
-          sdv2=dnbr[sdv][2];
-          //printf("sdv2 %d \n",sdv2);
-          add_dual_link(sdv,sdv2);
-        }
-        else{
-          //printf("add downtriangle\n");
-          sdv2=dnbr[sdv][2];
-          //printf("sdv2 %d \n",sdv2);
-          add_dual_link(sdv2,sdv);
-        }
-
-      }
+        firstdv[sdv]=dv;
+        //DEBUG_PRINT("sdv=%d ptr=%p \n",sdv,(void*)dv);
+        dv->ct=0;
     }
-  }
-  //printf("pre-stitch \n");
-  //void stitch
-  printf("before stitch\n");
-  for(int i=0; i<dverts.top; i++){
-      printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
-  }
-  stich_in_time();
-  for(int i=0; i<dverts.top; i++){
-      printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
-  }
-  remove_hyper_edges();
-  //printf("after removal\n");
-  //for(int i=0; i<dverts.top; i++){
-  //    printf("%d %d\n",i, ((vert*)ix_ptr(&dverts,i))->nnbr);
-  //}
+    for (sdv=0; sdv<ndsites; sdv++){
+        //add dual links for uptriangles
+        if(sdv%2==0){
+            sdv0=dnbr[sdv][0];
+            //DEBUG_PRINT("sdv0 %d \n",sdv0);
+            add_dual_link(sdv,sdv0);
 
+            sdv1=dnbr[sdv][1];
+            //DEBUG_PRINT("sdv1 %d \n",sdv1);
+            add_dual_link(sdv,sdv1);
 
+            sdv2=dnbr[sdv][2];
+            //DEBUG_PRINT("sdv2 %d \n",sdv1);
+            add_dual_link(sdv,sdv2);
+        }
+
+    }
+
+    for (int op_pos=0; op_pos <opstr_l; op_pos++) {
+        op = opstr[op_pos];
+        //new segment
+        if(op!=-1 && op < ntriangles){
+            int sdv=op;
+            //DEBUG_PRINT("sdv=%d\n",sdv);
+            int s0,s1,s2;
+            s0=triangle[op][0];
+            s1=triangle[op][1];
+            s2=triangle[op][2];
+            dv = dv_at_sdv[sdv];
+            dv->ct=1;
+            //if(dv->id== 1802){
+            //    printf("id:%d ct: %d spins: %d %d %d\n",dv->id, dv->ct,sigma[s0],sigma[s1],sigma[s2]);
+            //    for(int j=0; j<dv->nnbr; j++){
+            //        dl=dv->dl[j];
+            //        printf("j=%d dimer conf : %d, link=(%d %d), spins=(%d %d)  \n",j,dl->l->d,dl->l->v0->id,dl->l->v1->id,dl->l->v0->s,dl->l->v1->s);
+
+            //    }
+            //}
+        }
+        if (op!=-1 && op >= ntriangles){
+            sv0= (op-ntriangles)%nsites;
+            if(op>=ndiagops){
+                sigma[sv0]*=-1;
+            }
+
+            v= (vert*)top_ptr(&verts);
+            v->id=verts.top-1;
+            v_at_sv[sv0]=v;
+            v->s=sigma[sv0];
+            v0=v_at_sv[sv0];
+            //add links for new vertex (crucial to check for hyperedges
+            for(int i=0; i<6; i++){
+                l= (link*) top_ptr(&links);
+                l->id=links.top-1;
+
+                int sv1 = nbr[sv0][i];
+                sl=get_sl_from_sv(sv0,sv1);
+                //DEBUG_PRINT("sl from sv=%d, sites %d %d\n",sl,sv0,sv1);
+                v1=v_at_sv[sv1];
+
+                l_at_sl[sl] = l;
+                l->wx=wx_smark[sl];
+                l->wy=wy_smark[sl];
+                l->v0=v0;
+                l->v1=v1;
+                l->d= (v0->s == v1->s) ? 1 : 0;
+                l->he=0;
+                add_l_to_v(v0,l);
+                add_l_to_v(v1,l);
+            }
+            //dual graph vertices
+            //add 6 vertices
+            for (int i=0; i<nplaqspersite; i++){
+                dv=  (dvert*) top_ptr(&dverts);
+                dv->id=dverts.top-1;
+                sdv=sdv_at_sv[sv0][i];
+                dv_at_sdv[sdv]=dv;
+                DEBUG_PRINT("dv reset at %d\n",sdv);
+                //DEBUG_PRINT("sdv=%d, ix=%d \n", sdv, dverts.top);
+            }
+            int ix1=0; int ix2=1;
+            for (int i=0; i<ndvperv; i++){
+                sdv=sdv_at_sv[sv0][i];
+                sdv0=dnbr[sdv][ix1];
+                sdv1=dnbr[sdv][ix2];
+                add_dual_link(sdv,sdv0);
+                add_dual_link(sdv,sdv1);
+                //if(sdv0==12 || sdv1==12 || sdv==12)
+                //DEBUG_PRINT("[(%d %d [%d] ) (%d %d [%d]) ] \n",sdv, sdv0,ix1, sdv,sdv1,ix2);
+                ix1=(3+ix1-1)%3;
+                ix2=(3+ix2-1)%3;
+            }
+        }
+    }
+    //void stitch
+    stich_in_time();
+    fprint_dual();
+    remove_hyper_edges();
 
 }
 
 void stich_in_time(){
-  int sv, sdv; 
-  dvert *fdv,*ldv,*dv,*dv0,*dv1;
-  vert *fv,*lv,*v0,*v1;
-  dlink *dl,*dl0;
-  link *l;
-  int ix;
-  for(sv=0; sv<nsites; sv++){
-    lv= v_at_sv[sv];
-    fv= firstv[sv];
-    //printf("sv=%d, nnbr=%d\n",sv,lv->nnbr);
-    if(fv!=lv){
-      for(int j=0; j<lv->nnbr; j++){
-        l = lv->l[j];
-        ix=get_link_ix(fv,l);
-        //printf("ix=%d\n",ix);
-        if (ix==-1){
-          v1= get_partnerv(lv,l);
-          l->v0=fv;
-          l->v1=v1;
-          add_l_to_v(fv,l);
-        }
-        else
-          remove_l_byix_from_v(v1,ix);
+    int sv, sdv; 
+    dvert *fdv,*ldv,*dv,*dv0,*dv1;
+    vert *fv,*lv,*v0,*v1;
+    dlink *dl,*dl0;
+    link *l;
+    int ix,ix1;
+    for(sv=0; sv<nsites; sv++){
+        lv= v_at_sv[sv];
+        fv= firstv[sv];
+        if(fv!=lv){
+            for(int j=0; j<lv->nnbr; j++){
+                l = lv->l[j];
+                v1=get_partnerv(lv,l);
+                ix=get_link_ix(fv,v1);
+                if (ix==-1){
+                    l->v0=fv;
+                    l->v1=v1;
+                    add_l_to_v(fv,l);
+                }
+                else{
+                    ix1= get_link_ix(v1,lv);
+                    assert(ix1!=-1);
+                    remove_l_byix_from_v(v1,ix1);
+                }
 
-      }
+            }
+            remove_v(lv);
+        }
     }
-    remove_v(fv);
-  }
-  for(sdv=0; sdv<nsites; sdv++){
-    ldv= dv_at_sdv[sdv];
-    fdv= firstdv[sdv];
-    if(fdv!=ldv){
-      for(int j=0; j<ldv->nnbr; j++){
-        dl = ldv->dl[j];
-        ix=get_dlink_ix(fdv,dl);
-        if (ix==-1){
-          dv1= get_partnerdv(ldv,dl);
-          dl->dv0=fdv;
-          dl->dv1=dv1;
-          add_dl_to_dv(fdv,dl);
-        }
-        else{
-          dl0=fdv->dl[ix];
-          (dl0->l)->he += (dl->l)->he;
-          remove_dl_byix_from_dv(dv1,ix);
-        }
+    for(sdv=0; sdv<nsites; sdv++){
+        ldv= dv_at_sdv[sdv];
+        fdv= firstdv[sdv];
+        if(fdv!=ldv){
+            for(int j=0; j<ldv->nnbr; j++){
+                dl = ldv->dl[j];
+                dv1=get_partnerdv(ldv,dl);
+                ix=get_dlink_ix(fdv,dv1);
+                if (ix==-1){
+                    dl->dv0=fdv;
+                    dl->dv1=dv1;
+                    add_dl_to_dv(fdv,dl);
+                }
+                else{
+                    ix1=get_dlink_ix(dv1,ldv);
+                    assert(ix1!=-1);
+                    dl0=fdv->dl[ix];
+                    dl = dv1->dl[ix1];
+                    (dl0->l)->he += (dl->l)->he;
+                    remove_dl_byix_from_dv(dv1,ix1);
+                }
 
-      }
+            }
+            //DEBUG_GC();
+            remove_dv(ldv);
+        }
     }
-    remove_dv(fdv);
-  }
 
 }
 
@@ -234,64 +232,58 @@ void stich_in_time(){
 
 
 void remove_hyper_edges(){
-  link *l, *l2;
-  int maxj;
-  int j,j2;
-  int dvix;
-  dvert *dv;
-  dlink * dl, *dl2;
-  for ( dvix=0; dvix<dverts.top; dvix++){
-    dv= ix_ptr(&dverts, dvix);
-    j=0;
-    j2=dv->nnbr-1;
-    while(j<dv->nnbr && j2>j){
-      dl= dv->dl[j];
-      l=dl->l;
-      if (l->he >1){
-        while(j2>j){
-          dl2= dv->dl[j2];
-          l2=dl2->l;
-          if (l2->he==1){
-            dv->dl[j]=dl2;
-            dv->dl[j2]=dl;
-            dv->nnbr--;
-            break;
-          }
-          j2--;
+    link *l, *l2;
+    int maxj;
+    int j,j2;
+    int dvix;
+    dvert *dv;
+    dlink * dl, *dl2;
+    for ( dvix=0; dvix<dverts.top; dvix++){
+        dv= ix_ptr(&dverts, dvix);
+        j=0;
+        j2=0;
+        while(j<dv->nnbr ){
+            dl= dv->dl[j];
+            l=dl->l;
+            if((l->he)==1){
+                dv->dl[j2]=dv->dl[j];
+                j2++;
+            }
+            j++;
         }
-      }
-      j++;
+        dv->nnbr=j2;
     }
-  }
+    
 }
 void add_dual_link( int sdv0, int sdv1){
-  int sl,sdl;
-  sdl = get_sdl_from_sdv(sdv0, sdv1);
-  sl = sl_at_sdl[sdl];
-  link *l=l_at_sl[sl];
-  dvert* dv0, *dv1;
-  dlink *dl;
-  //check if it corresponds to a hyperedge
-  //if(if_hyperedge[l]==0){
-  dl = (dlink*)top_ptr(&dlinks);
-  dv0=dv_at_sdv[sdv0];
-  dv1=dv_at_sdv[sdv1];
-  //printf("sites %d (%p)  %d (%p)\n",sdv0, (void*)dv0,sdv1,(void*)dv1);
-  dl->dv0=dv0;
-  dl->dv1=dv1;
-  add_dl_to_dv(dv0,dl);
-  add_dl_to_dv(dv1,dl);
-  dl->l=l;
-  l->he++;
+    int sl,sdl;
+    sdl = get_sdl_from_sdv(sdv0, sdv1);
+    sl = sl_at_sdl[sdl];
+    link *l=l_at_sl[sl];
+    dvert* dv0, *dv1;
+    dlink *dl;
+    //check if it corresponds to a hyperedge
+    //if(if_hyperedge[l]==0){
+    dl = (dlink*)top_ptr(&dlinks);
+    dl->id = dlinks.top-1;
+    dv0=dv_at_sdv[sdv0];
+    dv1=dv_at_sdv[sdv1];
+    //DEBUG_PRINT("sites %d (%p)  %d (%p)\n",sdv0, (void*)dv0,sdv1,(void*)dv1);
+    dl->dv0=dv0;
+    dl->dv1=dv1;
+    add_dl_to_dv(dv0,dl);
+    add_dl_to_dv(dv1,dl);
+    dl->l=l;
+    l->he++;
 }
 
 void worm_update(){
     init_spatial_markers();
-    //printf("spatial markers done\n");
+    //DEBUG_PRINT("spatial markers done\n");
     init_dual_graph();
-    //printf("dual allocations done\n");
+    //DEBUG_PRINT("dual allocations done\n");
     create_graph();
-    //printf("graph created\n");
+    //DEBUG_PRINT("graph created\n");
     free_dual_graph();
     free_spatial_markers();
 }
