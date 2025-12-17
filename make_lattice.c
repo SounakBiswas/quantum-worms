@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include"global.h"
 #include"dual_graphs.h"
+#include<assert.h>
 #define  next_nbr(ii,jj,xx,yy)  ((xx+ii+lx)%lx + ((yy+jj+ly)%ly)*lx)
 // 2     1
 // --\  /
@@ -36,14 +37,15 @@ int get_sdl_from_sdv(int sdv1,int sdv2){
     if(sdv1%2==0){
         for(i=0; i<3; i++){
             if (dnbr[sdv1][i]==sdv2){
-                return 3*sdv1+i;
+                return 3*(sdv1/2)+i;
             }
         }
     }
     else{
+        assert(sdv2%2==0);
         for(i=0; i<3; i++){
             if (dnbr[sdv2][i]==sdv1){
-                return 3*sdv2+i;
+                return 3*(sdv2/2)+i;
             }
         }
     }
@@ -101,17 +103,17 @@ void make_lattice(void)
         else{
             dnbr[i][1]=2*site;
             dnbr[i][0]=2*nbr[site][3];
-            dnbr[i][2]=2*nbr[site][1];
+            dnbr[i][2]=2*nbr[site][2];
 
         }
     }
 
     int dlix,upsite;
     int nuptriangles=nsites;
-    for(upsite=0; upsite<nuptriangles; upsite++){
-        sl_at_sdl[3*upsite]= 3*nbr[upsite][0]+2;
-        sl_at_sdl[3*upsite+1]= 3*upsite+1;
-        sl_at_sdl[3*upsite+2]= 3*upsite;
+    for(site=0; site<nsites; site++){
+        sl_at_sdl[3*site]= 3*(nbr[site][0])+2;
+        sl_at_sdl[3*site+1]= 3*(site)+1;
+        sl_at_sdl[3*site+2]= 3*(site);
     }
 
 }
