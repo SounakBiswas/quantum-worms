@@ -44,7 +44,8 @@ void create_graph(){
         v_at_sv[sv0]=v;
         firstv[sv0]=v;
         v->o1=-1;
-        v->o1=-1;
+        v->o2=-1;
+        v->sv=sv0;
     }
     for (sv0=0; sv0<nsites; sv0++){
         for(int i=0; i<3; i++){
@@ -80,21 +81,27 @@ void create_graph(){
                 int sdv=op;
                 p=top_ptr(&plaqs);
                 p->id=plaqs.top-1;
-                //printf("adding, id=%d\n",p->id);
-                p->dvix=dvix;
+                DEBUG_PRINT("adding, id=%d at sdv %d\n",p->id,sdv);
+                if(lp!=NULL){
+                   DEBUG_PRINT(" old dvix=%d (id=%d) at sdv %d\n",lp->dvix,lp->id,dv_at_sdv[op]);
+                }
+                else
+                   DEBUG_PRINT("first here at %d \n",dv_at_sdv[op] );
+                p->dvix=dv_at_sdv[op];
                 //DEBUG_PRINT("sdv=%d\n",sdv);
                 int i;
                 for(i =0; i<3; i++){
                     sv0=triangle[op][i];
                     v0=v_at_sv[sv0];
                     p->v[i]=v0;
+                    assert(v0->id!=-1);
                     l=l_at_sl[ptolink[op][i]];
                     l->np++;
                     p->l[i]=l;
-                    //printf("v %d\n",p->v[i]->id);
+                    DEBUG_PRINT("v %d\n",p->v[i]->id);
 
                 }
-                //printf("\n");
+                //DEBUG_PRINT("\n");
                 p_at_sdv[sdv]=p;
                 if(firstp[sdv]==NULL){
                     firstp[sdv]=p;
@@ -116,6 +123,7 @@ void create_graph(){
             v_at_sv[sv0]=v;
             v->s=sigma[sv0];
             v->o1=op;
+            v->sv=sv0;
             v0=v_at_sv[sv0];
             lastsiteop[sv0]=op_pos;
             //add links for new vertex (crucial to check for hyperedges
@@ -132,13 +140,12 @@ void create_graph(){
                 l->v1=v1;
                 l->d= (v0->s == v1->s) ? 1 : 0;
                 l->np=0;
-                //printf("added sl %d id %d \n",sl,l->id);
+                //DEBUG_PRINT("added sl %d id %d \n",sl,l->id);
             }
             for (int i=0; i<nplaqspersite; i++){
                 sdv=sdv_at_sv[sv0][i];
                 dv_at_sdv[sdv]=dvix;
                 dvix++;
-                //DEBUG_PRINT("sdv=%d, ix=%d \n", sdv, dverts.top);
             }
         }
     }
@@ -146,41 +153,36 @@ void create_graph(){
     //vert *fv,*lv;
     //int ix,ix1;
     plaq *p1,*p2;
-    for(sdv=0; sdv<ndsites; sdv++){
-        p=p_at_sdv[sdv];
-        if(p!=NULL){
-            assert(firstp[sdv]!=NULL);
-            if(equal_plaqs(p,firstp[sdv])){
-                p->id=-1;
-            }
-            else{
-                for(int i=0; i<3; i++){
-                    sv0=triangle[sdv][i];
-                    v0=firstv[sv0];
-                    p->v[i]=v0;
-                    l=firstl[ptolink[op][i]];
-                    l->np+= p->l[i]->np;
-                    p->l[i]=l;
-                }
+    int pix;
+    vert *lv,*fv;
+    for(pix=0; pix<plaqs.top; pix++){
+        p= (plaq*)ix_ptr(&plaqs,pix);
+        for(int i=0; i<3; i++){
+            v0=p->v[i];
+            sv0= p->v[i]->sv;
+            lv=v_at_sv[sv0];
+            fv=firstv[sv0];
+            if(v0==lv && lv!=fv){
+                p->v[i]=fv;
             }
         }
 
     }
-    vert *fv, *lv;
     for(sv0=0; sv0<nsites; sv0++){
         fv= firstv[sv0];
         fv->o1=lastsiteop[sv0];
-        if(fv!=lv){
+        lv=v_at_sv[sv0];
+        DEBUG_PRINT("sv0=%d, fv=%d (%p), lv=%d (%p)\n",sv0,fv->id,fv,lv->id,lv);
+        if(lv!=fv){
             lv->id=-1;
         }
     }
-    print_graph();
+    //print_graph();
 
 }
 int *label;
-int addlabel();
 int labelmax;
-int find(int x){  // find representative element
+static int find(int x){  // find representative element
     int y=x;int z; 
     while(label[y]!=y)
         y=label[y];
@@ -192,7 +194,7 @@ int find(int x){  // find representative element
     return y;
 
 }
-int bind(int x, int y){
+static int bind(int x, int y){
     int a=find(x);int b=find(y);
     if(a>b)  
         return label[a]=b;
@@ -200,23 +202,29 @@ int bind(int x, int y){
         return label[b]=a;
 
 }
-int addlabel(){
+static int addlabel(){
     labelmax++;
     label[labelmax]=labelmax;
     return labelmax;
 
 }
+void flip_at_op_pos(int p){
+            if((opstr[p]>=2*nsites)&&(opstr[p]<3*nsites))
+                opstr[p]+=nsites;
+            else if(opstr[p]>=3*nsites)
+                opstr[p]-=nsites;
+}
 void new_cluster_update(){
     int  *cluster;
     int *nlabels;
     int *clust_size;
-    label=(int*)malloc((legs+1)*sizeof(int));
-    cluster=(int*)malloc(legs*sizeof(int));
-    nlabels=(int*)malloc((legs+1)*sizeof(int));
-    clust_size=(int*)malloc((legs+1)*sizeof(int));
+    label=(int*)malloc((verts.top)*sizeof(int));
+    cluster=(int*)malloc(verts.top*sizeof(int));
+    nlabels=(int*)malloc((verts.top)*sizeof(int));
+    clust_size=(int*)malloc((verts.top)*sizeof(int));
     int pix;
     plaq *p;
-    labelmax=0;
+    labelmax=-1;
     vert *v0,*v1,*v2;
     vert *maj1,*maj2,*min;
     int ix0,ix1,ix2;;
@@ -225,13 +233,19 @@ void new_cluster_update(){
     for(ix=0; ix <verts.top; ix++){
         cluster[ix]=-1;
         nlabels[ix]=-1;
+        
     }
     for (pix=0; pix<plaqs.top; pix++){
         p = (plaq*)ix_ptr(&plaqs,pix);
         if(p->id!=-1){
+            DEBUG_PRINT("pid=%d\n",p->id);
+            DEBUG_PRINT("verts=%d %d %d\n",p->v[0]->id, p->v[1]->id,p->v[2]->id);
             v0=p->v[0];
             v1=p->v[1];
             v2=p->v[2];
+            assert(v0->id!=-1);
+            assert(v1->id!=-1);
+            assert(v2->id!=-1);
             for(int ix0=0; ix0<3; ix0++){
                 ix1 = (ix0+1)%3;
                 ix2 = (ix0+2)%3;
@@ -242,8 +256,6 @@ void new_cluster_update(){
                     assert(maj2->id!=-1);
                     assert(min->id!=-1);
                     break;
-
-
                 }
             }
             //cluster rule
@@ -260,8 +272,11 @@ void new_cluster_update(){
             if(cluster[id0]==-1) {
                 cluster[id0]=addlabel();
             }
-            if(cluster[id1]==-1){ 
-                cluster[id1]=cluster[id0];
+            if(cluster[id1]==-1) {
+                cluster[id1]=addlabel();
+            }
+            else if(cluster[id2]==-1){ 
+                cluster[id2]=cluster[id1];
             }
             else{
                 cluster[id1]=cluster[id2]=bind(cluster[id1],cluster[id2]);
@@ -272,7 +287,7 @@ void new_cluster_update(){
     for(ix=0;ix<verts.top;ix++){
         v0=(vert*)ix_ptr(&verts,ix);
         id0=v0->id;
-        if(id0!=-1){
+        if( id0!=-1 && cluster[id0]!=-1){
             cluster[id0]=find(cluster[id0]);
             if(nlabels[cluster[id0]]==-1){
                 labelmax++;
@@ -286,10 +301,59 @@ void new_cluster_update(){
 
         }
     }
+    free(nlabels);
+    int *flag=(int*)malloc((labelmax+1)*sizeof(int));
+    for(int i=0;i<=labelmax;i++)
+        flag[i]=(genrand_real2()<0.5);
     for(ix=0; ix <verts.top; ix++){
+        v0=(vert *)ix_ptr(&verts,ix);
+        id0=v0->id;
+        if(id0 !=-1){
+            if (cluster[id0]!=-1 && flag[cluster[id0]]==1){
+                if ( v0->o1 !=-1){
+                    assert(v0->o2!=-1);
+                    flip_at_op_pos(v0->o1);
+                    flip_at_op_pos(v0->o2);
+                }
+               
+
+
+            }
+
+        }
     }
+    vert *fv, *lv;
+    for(ix=0; ix <nsites; ix++){
+        fv=firstv[ix];
+        id0=fv->id;
+        assert(id0!=-1);
+        if(cluster[id0]==-1){
+            sigma[ix]=(genrand_real2()<0.5)?1:-1;
+        }
+        else{
+            if(flag[cluster[id0]]==1){
+                sigma[ix]*=-1;
+            }
+        } 
+            
+    }
+    free(cluster);
+    free(flag);
+    free(label);
+    free(clust_size);
 
 }
 
 
+void fat_update(){
+    init_spatial_markers();
+    //DEBUG_PRINT("spatial markers done\n");
+    init_dual_graph();
+    //DEBUG_PRINT("dual allocations done\n");
+    create_graph();
+    new_cluster_update();
+    //DEBUG_PRINT("graph created\n");
+    free_dual_graph();
+    free_spatial_markers();
+}
 

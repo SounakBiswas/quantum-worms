@@ -38,10 +38,10 @@ struct link{
 struct vert{
   int nnbr;
   int s;
+  int sv;
   int o1;
   int o2;
   int id;
-  int fr;
 };
 struct plaq{
   vert *v[3];

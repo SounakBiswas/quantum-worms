@@ -78,7 +78,7 @@ void free_dual_graph(){
 int equal_plaqs(plaq *p1, plaq *p2){
     for (int i =0; i<3; i++)
         if(p1->v[i]!=p2->v[i])
-            return -1;
+            return 0;
     return 1;
 
 }
