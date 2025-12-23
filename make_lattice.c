@@ -90,6 +90,9 @@ void make_lattice(void)
         triangle[i][sublat[site]]=site;
         triangle[i][sublat[site1]]=site1;
         triangle[i][sublat[site2]]=site2;
+        ptolink[i][0]=get_sl_from_sv(site,site1);
+        ptolink[i][1]=get_sl_from_sv(site1,site2);
+        ptolink[i][2]=get_sl_from_sv(site2,site);
 
     }
     for(i=0; i<NDSITES; i++){
