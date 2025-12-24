@@ -9,6 +9,14 @@
 //stack
 //push stack
 //returns top pointer and advances
+//void add_p_to_v(vert *v, plaq* p){
+//  if(v->np==v->maxnp){
+//      v->maxnp=(1+((v->maxnp)*3)/2);
+//      v->p=(plaq**)realloc(v->p,(v->maxnp)*sizeof(plaq *));
+//  }
+//  v->p[v->np]= p;
+//  v->np++;
+//}
 void* top_ptr(vector *s){
    assert((s->top) < (s->max));
   void *elem= (void*)((char*)(s->arr) + (s->top) *(s->size) );
@@ -16,7 +24,7 @@ void* top_ptr(vector *s){
   return elem;
 }
 void* ix_ptr(vector *s, int ix){
-  assert(ix<=s->top);
+  //assert(ix<=s->top);
   void *elem= (void*)((char*)(s->arr) + ix *(s->size));
   return elem;
 }
@@ -36,9 +44,7 @@ void init_vector(vector *s, int max, size_t size){
 void init_spatial_markers(){
   v_at_sv=(vert**)malloc(nsites*sizeof(vert*));
   firstv=(vert**)malloc(nsites*sizeof(vert*));
-  firstl=(link**)malloc(nbonds*sizeof(link*));
   firstp=(plaq**)malloc(ndsites*sizeof(plaq*));
-  l_at_sl = (link**) malloc(nbonds*sizeof(link*));
   p_at_sdv = (plaq**) malloc(ndsites*sizeof(plaq*));
   for(int i=0; i<ndsites; i++){
       p_at_sdv[i]=NULL;
@@ -49,9 +55,7 @@ void init_spatial_markers(){
 void free_spatial_markers(){
   free(v_at_sv);
   free(p_at_sdv);
-  free(l_at_sl  );
   free(firstv);
-  free(firstl);
   free(firstp);
 }
 
@@ -60,17 +64,27 @@ void init_dual_graph(){
   int max_ndl=max_ndv*6;
   int max_nl=max_ndl;
   int max_nv=nsites+(n_niop-n_triagop);
-  init_vector(&links, max_nl, sizeof(link));
   init_vector(&verts, max_nv, sizeof(vert));
   init_vector(&plaqs,max_ndv, sizeof(plaq));
+  //plaq part
+  //for(int i=0; i<max_nv; i++){
+  //    vert *v= (vert*)ix_ptr(&verts,i);
+  //    v->np=0;
+  //    v->maxnp=0;
+  //    v->p=NULL;
+  //}
 
 
 
 }
 
 void free_dual_graph(){
+    //int i;
+    //for(i=0; i<verts.top; i++){
+    //    vert *v = (vert *)ix_ptr(&verts,i);
+    //    free(v->p);
+    //} 
 
-    free_vector(&links);
     free_vector(&verts);
     free_vector(&plaqs);
 
@@ -82,20 +96,20 @@ int equal_plaqs(plaq *p1, plaq *p2){
     return 1;
 
 }
-void print_graph(){
-    int i;
-    plaq *p;
-    for(i=0; i<plaqs.top; i++){
-        p=(plaq*)ix_ptr(&plaqs,i);
-        printf("plaq, id=%d, dvix=%d\n",p->id, p->dvix);
-        if(p->id!=-1){
-            printf("verts %d %d %d \n",p->v[0]->id,p->v[1]->id,p->v[2]->id);
-            printf("links %d(%d) %d(%d) %d(%d) \n",p->l[0]->id,p->l[0]->np,p->l[1]->id,p->l[1]->np,p->l[2]->id,p->l[2]->np);
-        }
-        //else{
-        //    printf("removed plaq \n");
-        //}
-
-
-    }
-}
+//void print_graph(){
+//    int i;
+//    plaq *p;
+//    for(i=0; i<plaqs.top; i++){
+//        p=(plaq*)ix_ptr(&plaqs,i);
+//        printf("plaq, id=%d, dvix=%d\n",p->id, p->dvix);
+//        if(p->id!=-1){
+//            printf("verts %d %d %d \n",p->v[0]->id,p->v[1]->id,p->v[2]->id);
+//            printf("links %d(%d) %d(%d) %d(%d) \n",p->l[0]->id,p->l[0]->np,p->l[1]->id,p->l[1]->np,p->l[2]->id,p->l[2]->np);
+//        }
+//        //else{
+//        //    printf("removed plaq \n");
+//        //}
+//
+//
+//    }
+//}

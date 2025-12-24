@@ -3,7 +3,7 @@
 #include<assert.h>
 #include<math.h>
 #include"global.h"
-#include"mt19937ar.h"
+#include"mt19937ar.h" 
 #include"fat.h"
 #include"time.h"
 //graph data structures
@@ -82,10 +82,18 @@ void create_graph(){
                     sv0=triangle[op][i];
                     v0=v_at_sv[sv0];
                     p->v[i]=v0;
+                    //add_p_to_v(v0,p);
                     assert(v0->id!=-1);
                     DEBUG_PRINT("v %d\n",p->v[i]->id);
-
                 }
+                //if(p->v[0]->s == p->v[1]->s){
+                //    p->min=2;
+                //}
+                //else if(p->v[0]->s == p->v[2]->s){
+                //    p->min=1;
+                //}
+                //else
+                //    p->min=0;
                 DEBUG_PRINT(" added sigma, %d %d %d \n",sigma[p->v[0]->sv],sigma[p->v[1]->sv],sigma[p->v[2]->sv]);
                 DEBUG_PRINT(" sp at v %d %d %d, sum=%d \n",p->v[0]->s,p->v[1]->s,p->v[2]->s,p->v[0]->s + p->v[1]->s + p->v[2]->s);
                 assert(abs(p->v[0]->s + p->v[1]->s + p->v[2]->s)==1);
@@ -111,6 +119,7 @@ void create_graph(){
             v_at_sv[sv0]=v;
             v->s=sigma[sv0];
             v->o1=op_pos;
+            v->o2=-1;
             v->sv=sv0;
             v0=v_at_sv[sv0];
             lastsiteop[sv0]=op_pos;
@@ -236,6 +245,15 @@ void new_cluster_update(int typ){
            split_plaq_prem(p,typ);
         }
     }
+    //*stitch in update*//
+    //for(ix=0; ix<nsites;ix++){
+    //    id0 = firstv[ix]->id;
+    //    id1 = v_at_sv[ix]->id;
+    //    if(id0!=id1){
+    //        cluster[id0]=cluster[id1]=bind(cluster[id0],cluster[id1]);
+    //    }
+    //}
+    //***/
     labelmax=-1;
     for(ix=0;ix<verts.top;ix++){
         v0=(vert*)ix_ptr(&verts,ix);
@@ -306,6 +324,10 @@ void new_cluster_update(int typ){
                     flip_at_op_pos(v0->o2);
                     //v0->s *= -1;
                 }
+                //if(v0->o1 != -1)
+                //    flip_at_op_pos(v0->o1);
+                //if(v0->o2 != -1)
+                //    flip_at_op_pos(v0->o2);
 
 
 

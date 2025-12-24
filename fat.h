@@ -45,7 +45,6 @@ struct vert{
 };
 struct plaq{
   vert *v[3];
-  link *l[3];
   int id;
   int dvix;
 };
@@ -73,3 +72,4 @@ void* top_ptr(vector *s);
 void* ix_ptr(vector *s, int ix);
 int equal_plaqs(plaq*, plaq*);
 void print_graph();
+void add_p_to_v(vert *v, plaq* p);
