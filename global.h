@@ -1,15 +1,25 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-//////parameters:
-#define MAX_MC_STEP 1000
-#define MAX_W_STEP 1000
-#define BINSIZE 100
-#define NUMBEROFBINS ((MAX_MC_STEP+MAX_W_STEP)/(2*1*BINSIZE))
-#define TOTALMCSTEPS (2*NUMBEROFBINS*BINSIZE)
 
-#define LX 6
-#define LY 6
+//////parameters:
+#ifdef DEBUG
+    #define DEBUG_PRINT(...) printf("DEBUG: " __VA_ARGS__)
+#else
+    #define DEBUG_PRINT(...) do {} while (0)
+#endif
+#ifdef DEBUG
+    #define DEBUG_GC() getchar()
+#else
+    #define DEBUG_GC() do {} while (0)
+#endif
+
+
+#define MAX_MC_STEP 200000
+#define MAX_W_STEP 20000
+#define BINSIZE 100
+#define LX 9
+#define LY 9
 #define NSITES (LX*LY)
 #define NTRIANGLES (2*LX*LY)
 #define NBONDS (3*LX*LY)
@@ -19,6 +29,7 @@
 #define NDVPERV 6
 #define JISING 1.0000// Ising exchange
 #define INITIALSTATE 0 //initial state 2: staggered, initialstate 1: columnar ; initialstate=0: all sigma random;
+#define SEED 21
 #define INIT_OPSTR_L 30
 #define NDSITES 2*NSITES
 #define NDLINKS 3*NSITES
@@ -32,6 +43,7 @@ int sl_at_sdl[NDLINKS];
 int wx_smark[NLINKS], wy_smark[NLINKS];
 int dnbr[2*NSITES][3]; //gives a,b,c site numbers of given triangle
 int ndvperv;
+double tmake,tclust,tstitch;
                        //
 
 //constants
@@ -46,6 +58,8 @@ double piby2;
 double pi;
 int sublat[NSITES];
 int triangle[2*NSITES][3]; //gives a,b,c site numbers of given triangle
+int ptolink[2*NSITES][3];
+                           //
 //inputoutput
 char auto_fname[256],bin_op_local_fname[256],cum_op_local_fname[256],bin_op_fname[256],cum_op_fname[256],save_fname[256],hist_fname[256],clusterst_fname[256];
 //config and geometry

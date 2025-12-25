@@ -16,8 +16,8 @@ void set_const_val(void)
   //*************************
   max_mc_step = MAX_MC_STEP;
   max_w_step = MAX_W_STEP;
-  numberofbins = NUMBEROFBINS;
-  totalmcsteps = TOTALMCSTEPS;
+  totalmcsteps = max_mc_step+max_w_step;
+  printf("%lu %lu %lu \n", max_mc_step, max_w_step,totalmcsteps);
   binsize = BINSIZE;
 
   tau_max = TAU_MAX;
