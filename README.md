@@ -1,4 +1,11 @@
 Attempts to construct quantum worms.
+## Recent update (25/12)
+
+With experience-tempered exasperation I have discovered that dual worms don't work. When emptied of hyperedges, nothing is left of the graph except a few flippable spins here and there. 
+
+So a less ambitious idea would be to stay in the fat-spin graph and not go to its dual. This is already an improvement, the actual cluster update (not the diagonal update or link-list maker) is twice as fast.
+
+This is what is on
 
 ### What is the myopic-equivalent here.
 
