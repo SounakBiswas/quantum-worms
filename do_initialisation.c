@@ -20,7 +20,7 @@ void do_initialisation(void)
   n_niop=0;
   n_triagop=0;
   n_flipop=0;
-  seed=39845;
+  seed=SEED;
   init_genrand(seed);
   take_stat_bool=0;
   num_cluster=0;
@@ -109,7 +109,6 @@ psi3tau_est_lby2_av=psi3tau_est_lby3_av=psi3tau_est_lby6_av=0.0;
 impsi_av=repsi_av=0.0;
   n_measure=0;
   completed_bins=0;
-  totalmcsteps=2*binsize*numberofbins;
 for (i=0;i<63;i++) {
 hist_phase[i]=0; }
   return;
