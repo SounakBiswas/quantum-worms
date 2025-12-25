@@ -3,6 +3,8 @@
 int get_sdl_from_sdv(int sdv, int sdvnbr);
 int get_sl_at_sdl(int sdl);
 int get_sl_from_sv(int sv,int svnbr);
+void print_dual();
+void fprint_dual();
 void add_dual_link( int sdv0, int sdv1);
 extern int *sv_at_v;
 
@@ -20,6 +22,7 @@ typedef struct link link;
 typedef struct dlink dlink;
 typedef struct vert vert;
 typedef struct dvert dvert;
+typedef struct plaq plaq;
 typedef struct vector vector;
 struct vector{
   void* arr;
@@ -34,20 +37,29 @@ struct link{
   dlink *dl;
   int d;
   int he;
+  int id;
 };
 struct dlink{
   dvert *dv0, *dv1;
   link *l;
+  int id;
 };
 struct vert{
   int nnbr;
   link **l;
   int s;
+  int id;
 };
 struct dvert{
   int nnbr;
   dlink **dl;
   int ct;
+  int id;
+};
+struct plaq{
+  vert *v0,*v1,*v2;
+  link *l0, *l1, *l2;
+  int id;
 };
 extern vert **v_at_sv;
 extern link **l_at_sl;
@@ -71,7 +83,7 @@ void add_l_to_v(vert *v, link* l);
 void add_dl_to_dv(dvert *dv, dlink* dl);
 void remove_v(vert *v0);
 void remove_dv(dvert *dv0);
-int get_link_ix(vert *v0, link *l0);
-int get_dlink_ix(dvert *dv0, dlink *dl0);
+int get_link_ix(vert *v0, vert *l0);
+int get_dlink_ix(dvert *dv0, dvert *dl0);
 void* top_ptr(vector *s);
 void* ix_ptr(vector *s, int ix);
