@@ -46,6 +46,7 @@ int main()
         for(k=0;k<3;k++){
             do_diag(ifwup);
             makelinks(k);
+            wolffsteps=(n_niop-n_triagop);
             canonical();
             freelinks();
 
