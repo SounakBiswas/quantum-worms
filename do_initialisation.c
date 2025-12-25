@@ -14,9 +14,10 @@ void do_initialisation(void)
   opstr_l=INIT_OPSTR_L;
   opstr=(int*)malloc(opstr_l*sizeof(int));
   divider=(int*)malloc(opstr_l*sizeof(int));
+  minority=(int*)malloc(opstr_l*sizeof(int));
   //init_by_array(init, length2);
   for(i=0;i<opstr_l;i++)
-  opstr[i]=divider[i]=-1;
+  opstr[i]=divider[i]=minority[i]=-1;
   n_niop=0;
   n_triagop=0;
   n_flipop=0;

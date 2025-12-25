@@ -15,10 +15,10 @@ void do_initialisation(void);
 void do_metropolis_ising(void);
 void measure(void);
 void fat_update(int);
-void can_update();
 void free_fat_graph();
 void fat_update(int typ);
 void make_fat_graph();
+void canonical();
 
 int main()
 {
@@ -45,15 +45,14 @@ int main()
 
         for(k=0;k<3;k++){
             do_diag(ifwup);
-            //makelinks(k);
-            //do_clust();
-            //freelinks();
+            makelinks(k);
+            canonical();
+            freelinks();
 
             //makelinks(k);
             make_fat_graph();
 
             fat_update(k);
-            can_update();
             free_fat_graph();
             //do_clust();
             //freelinks();
@@ -67,6 +66,7 @@ int main()
     printf("done %li steps\n",totalmcsteps);
     free(opstr);
     free(divider);
+    free(minority);
     /*write cluster statisitcs*/
     /*************************************/
     free(hist_clust_size) ; 

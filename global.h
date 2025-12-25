@@ -18,8 +18,8 @@
 #define MAX_MC_STEP 200000
 #define MAX_W_STEP 20000
 #define BINSIZE 100
-#define LX 9
-#define LY 9
+#define LX 3
+#define LY 3
 #define NSITES (LX*LY)
 #define NTRIANGLES (2*LX*LY)
 #define NBONDS (3*LX*LY)
@@ -44,6 +44,7 @@ int wx_smark[NLINKS], wy_smark[NLINKS];
 int dnbr[2*NSITES][3]; //gives a,b,c site numbers of given triangle
 int ndvperv;
 double tmake,tclust,tstitch;
+int wolffsteps;
                        //
 
 //constants
@@ -74,6 +75,7 @@ int opstr_l;
 int new_opstr_l;
 int *opstr;
 int *divider;
+int *minority;
 int n_niop; //number of non identity operators in the seq
 int n_triagop; // number of kedar triangles.
 int n_flipop;
@@ -124,6 +126,8 @@ double impsi_av,repsi_av;
 
 
 double hist_phase[63];
+
+int *pos_gammalegs;
 
 
 #endif //GLOBAL_H

@@ -30,11 +30,18 @@ void do_diag(int wup){
                     site0=triangle[rantrngle][0];
                     site1=triangle[rantrngle][1];
                     site2=triangle[rantrngle][2];
-                    if((sigma[site0]+sigma[site1]+sigma[site2])== 1 || (sigma[site0]+sigma[site1]+sigma[site2])== -1){// check if a triangle operator is allowed
-                        opstr[i]=rantrngle;
-                        n_niop++;
-                        n_triagop++;
-                    }
+                    int ep=(sigma[site0]+sigma[site1]+sigma[site2]);
+	  if(ep== 1 || ep == -1){// check if a triangle operator is allowed
+	    opstr[i]=rantrngle;
+	    n_niop++;
+	    n_triagop++;
+            if(sigma[site0]!=ep)
+              minority[i]=0;
+            else if(sigma[site1]!=ep)
+              minority[i]=1;
+            else
+              minority[i]=2;
+	  }
                 }
 
             }
@@ -43,7 +50,10 @@ void do_diag(int wup){
             P_del=(double)(opstr_l-n_niop+1.0)/k;
             if(genrand_real2()<P_del){
                 n_niop--;
-                if(opstr[i]<(ntriangles)) n_triagop--;	
+                if(opstr[i]<(ntriangles)){ 
+                    n_triagop--;	
+                    minority[i]=-1;
+                }
                 opstr[i]=-1;
             }
         }  
@@ -56,8 +66,9 @@ void do_diag(int wup){
             new_opstr_l=opstr_l*1.5;
             opstr=(int *)realloc(opstr,new_opstr_l*sizeof(int));// reallocate memory
             divider=(int *)realloc(divider,new_opstr_l*sizeof(int));// reallocate memory
+            minority=(int *)realloc(minority,new_opstr_l*sizeof(int));// reallocate memory
             for(i=opstr_l;i<new_opstr_l;i++)
-                opstr[i]=divider[i]=-1;
+                opstr[i]=divider[i]=minority[i]=-1;
             opstr_l=new_opstr_l;
         }
     }
@@ -239,6 +250,13 @@ void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
     free(clust_size);
     tclust+=(double)(clock()-t0)/(1.0*CLOCKS_PER_SEC);
 }
+void freespins(){
+  int i;
+  for(i=0;i<nsites;i++){
+    if (first[i]==-1)
+      sigma[i]=(genrand_real2()>0.5)?sigma[i]:-sigma[i];
+  }
 
+}
 
 
