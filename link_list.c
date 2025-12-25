@@ -4,7 +4,9 @@
 #include<math.h>
 #include"global.h"
 #include"mt19937ar.h"
+#include<time.h>
 void makelinks(int update){ // type of updat : A,B or C coded as 0 1 or 2
+  time_t t0=clock();
   int i;FILE *fp;
   legs=2*n_niop + 4*n_triagop; // total number of legs
   op_pos=(int*)malloc(legs*sizeof(int));
@@ -94,6 +96,11 @@ void makelinks(int update){ // type of updat : A,B or C coded as 0 1 or 2
     fprintf(fp,"%d\t%d\t%d\t%d\n",i,link_list[i],op_pos[i],opstr[op_pos[i]]);
   fclose(fp);
   getchar();*/
+  tmake+=(double)(clock()-t0)/(1.0 *CLOCKS_PER_SEC);
 
+}
+void freelinks(){
+    free(op_pos);
+    free(link_list);
 }
 
