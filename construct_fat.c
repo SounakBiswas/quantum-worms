@@ -82,18 +82,9 @@ void create_graph(){
                     sv0=triangle[op][i];
                     v0=v_at_sv[sv0];
                     p->v[i]=v0;
-                    //add_p_to_v(v0,p);
                     assert(v0->id!=-1);
                     DEBUG_PRINT("v %d\n",p->v[i]->id);
                 }
-                //if(p->v[0]->s == p->v[1]->s){
-                //    p->min=2;
-                //}
-                //else if(p->v[0]->s == p->v[2]->s){
-                //    p->min=1;
-                //}
-                //else
-                //    p->min=0;
                 DEBUG_PRINT(" added sigma, %d %d %d \n",sigma[p->v[0]->sv],sigma[p->v[1]->sv],sigma[p->v[2]->sv]);
                 DEBUG_PRINT(" sp at v %d %d %d, sum=%d \n",p->v[0]->s,p->v[1]->s,p->v[2]->s,p->v[0]->s + p->v[1]->s + p->v[2]->s);
                 assert(abs(p->v[0]->s + p->v[1]->s + p->v[2]->s)==1);
@@ -158,6 +149,16 @@ void create_graph(){
         DEBUG_PRINT("sv0=%d, fv=%d (%p), lv=%d (%p)\n",sv0,fv->id,fv,lv->id,lv);
         if(lv!=fv){
             lv->id=-1;
+        }
+    }
+    //remove plaquettes
+    plaq *fp;
+    for(sdv0=0; sdv0<ndsites; sdv0++){
+        fp= firstp[sdv0];
+        lp=p_at_sdv[sdv0];
+        DEBUG_PRINT("sv0=%d, fv=%d (%p), lv=%d (%p)\n",sv0,fv->id,fv,lv->id,lv);
+        if(fp!=lp && equal_plaqs(fp,lp)){
+            lp->id=-1;
         }
     }
     tstitch+=(double)(clock()-t1)/(1.0*CLOCKS_PER_SEC);
@@ -365,16 +366,19 @@ void new_cluster_update(int typ){
 }
 
 
-void fat_update(int typ){
+void make_fat_graph(){
     init_spatial_markers();
     //DEBUG_PRINT("spatial markers done\n");
     init_dual_graph();
     //DEBUG_PRINT("dual allocations done\n");
     create_graph();
-    new_cluster_update(typ);
-    //DEBUG_PRINT("graph created\n");
+}
+void free_fat_graph(){
     free_dual_graph();
     free_spatial_markers();
+}
+void fat_update(int typ){
+    new_cluster_update(typ);
 }
 
 void split_plaq_rand(plaq* p){
