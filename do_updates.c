@@ -3,6 +3,7 @@
 #include<assert.h>
 #include<math.h>
 #include"global.h"
+#include<time.h>
 #include"mt19937ar.h"
 #define max(a,b) ((a>b)?a:b)
 
@@ -66,13 +67,13 @@ void do_diag(int wup){
 
 int *label;
 int labelmax=0;
-int addlabel(){
+static int addlabel(){
     labelmax++;
     label[labelmax]=labelmax;
     return labelmax;
 
 }
-int find(int x){  // find representative element
+static int find(int x){  // find representative element
     int y=x;int z; 
     while(label[y]!=y)
         y=label[y];
@@ -84,7 +85,7 @@ int find(int x){  // find representative element
     return y;
 
 }
-int bind(int x, int y){
+static int bind(int x, int y){
     int a=find(x);int b=find(y);
     if(a>b)  
         return label[a]=b;
@@ -94,6 +95,7 @@ int bind(int x, int y){
 }
 
 void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
+    time_t t0 = clock();
     int* flag;int *cluster;int *nlabels;int *clust_size;
     int i;int p;int j;
     int l,k;int c;
@@ -221,18 +223,21 @@ void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
 
         }
     for(i=0;i<nsites;i++){
-        if (first[i]==-1)
+        if (first[i]==-1){
             sigma[i]=(genrand_real2()>0.5)?sigma[i]:-sigma[i];
+      //      printf("i=%d, clus=free\n",i);
+        }
         else 
             sigma[i]=(flag[cluster[first[i]]]==1)?-sigma[i]:sigma[i];
+     //       printf("i=%d, clus=%d\n",i,cluster[first[i]]);
     }
+    //getchar();
 
-    free(op_pos);
-    free(link_list);
     free(cluster);
     free(flag);
     free(label);
     free(clust_size);
+    tclust+=(double)(clock()-t0)/(1.0*CLOCKS_PER_SEC);
 }
 
 
