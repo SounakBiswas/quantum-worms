@@ -6,6 +6,7 @@
 #include<time.h>
 #include"mt19937ar.h"
 #define max(a,b) ((a>b)?a:b)
+void freespins();
 
 void do_diag(int wup){
     double genrand_real2(void);
@@ -21,7 +22,7 @@ void do_diag(int wup){
             P_add=k/(double)(opstr_l-n_niop);
             if(genrand_real2()<P_add){
                 if(genrand_real2()< P_site){ //add a single site operator
-                    ransite=(int)(genrand_real2()*NSITES);
+                    ransite=(int)(genrand_real2()*nsites);
                     opstr[i]=ntriangles+ransite;
                     n_niop++;
                 } 
@@ -123,7 +124,7 @@ void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
     clust_size[legs]=nlabels[legs]=0;
     for(i=0;i<legs;i++){
         p=op_pos[i]; 
-        if(opstr[p]>=2*nsites){
+        if(opstr[p]>=ntriangles){
             if (cluster[link_list[i]]==0){
                 cluster[i]=addlabel(); // put in new cluster
             }
@@ -227,9 +228,9 @@ void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
         if(flag[cluster[i]]==1){
             p=op_pos[i];
             // putchar('a');
-            if((opstr[p]>=2*nsites)&&(opstr[p]<3*nsites))
+            if((opstr[p]>=ntriangles)&&(opstr[p]<ntrianglesandsites))
                 opstr[p]+=nsites;
-            else if(opstr[p]>=3*nsites)
+            else if(opstr[p]>=ntrianglesandsites)
                 opstr[p]-=nsites;
 
         }
@@ -249,6 +250,7 @@ void do_clust(){//  The Hoshen Kopelman algorithm for Kedars algo
     free(label);
     free(clust_size);
     tclust+=(double)(clock()-t0)/(1.0*CLOCKS_PER_SEC);
+
 }
 void freespins(){
   int i;

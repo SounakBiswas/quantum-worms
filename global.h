@@ -15,15 +15,16 @@
 #endif
 
 
-#define MAX_MC_STEP 200000
+#define MAX_MC_STEP 2000000
 #define MAX_W_STEP 20000
 #define BINSIZE 100
 #define LX 3
 #define LY 3
 #define NSITES (LX*LY)
 #define NTRIANGLES (2*LX*LY)
+//#define NTRIANGLES (LX*LY)
 #define NBONDS (3*LX*LY)
-#define NTRIANGLESANDSITES (3*LX*LY)
+#define NTRIANGLESANDSITES (NTRIANGLES+NSITES)
 #define TEMP 1.0000
 #define H 1.0000
 #define NDVPERV 6
